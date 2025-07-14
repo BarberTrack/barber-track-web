@@ -17,14 +17,13 @@ export function LoginForm({
     password: ''
   });
 
-  
-  if (isAuthenticated) {
-    return <Navigate to="/home" replace />;
-  }
-
   useEffect(() => {
     return () => clearAuthError();
   }, [clearAuthError]);
+
+  if (isAuthenticated) {
+    return <Navigate to="/home" replace />;
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

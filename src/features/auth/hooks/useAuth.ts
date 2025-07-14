@@ -41,7 +41,7 @@ export const useAuth = () => {
 
   const logout = useCallback(async () => {
     await dispatch(logoutUser());
-    navigate('/login');
+    navigate('/');
   }, [dispatch, navigate]);
 
   const clearAuthError = useCallback(() => {

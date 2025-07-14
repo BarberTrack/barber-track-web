@@ -4,7 +4,7 @@ import type { LoginCredentials, AuthResponse } from '@/shared/types/auth.types';
 
 class AuthService {
   private api: AxiosInstance;
-  private readonly baseURL = import.meta.env.API_URL;
+  private readonly baseURL = import.meta.env.VITE_API_URL;
 
   constructor() {
     this.api = axios.create({
@@ -35,7 +35,7 @@ class AuthService {
           // Token expirado o inválido
           localStorage.removeItem('barbertrack_token');
           localStorage.removeItem('barbertrack_user');
-          window.location.href = '/login';
+          window.location.href = '/';
         }
         return Promise.reject(error);
       }

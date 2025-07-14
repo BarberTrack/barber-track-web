@@ -5,7 +5,7 @@ import { logoutUser } from '../../features/auth/store/authSlice';
 
 class ApiClient {
   private instance: AxiosInstance;
-  private readonly baseURL = import.meta.env.API_URL;
+  private readonly baseURL = import.meta.env.VITE_API_URL;
 
   constructor() {
     this.instance = axios.create({
@@ -46,7 +46,7 @@ class ApiClient {
           store.dispatch(logoutUser());
           
           // Redirect to login
-          window.location.href = '/login';
+          window.location.href = '/';
         }
 
         return Promise.reject(error);
