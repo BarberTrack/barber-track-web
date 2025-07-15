@@ -18,7 +18,6 @@ export const useBusiness = () => {
         }
         try {
             const result = await dispatch(getBusinesses()).unwrap();
-            console.log(result);
             return result;
         }catch (error) {
             throw error;

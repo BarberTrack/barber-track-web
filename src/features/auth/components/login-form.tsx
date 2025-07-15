@@ -80,7 +80,7 @@ export function LoginForm({
                   O ingresa con
                 </span>
               </div>
-              <div className="flex justify-center">
+              {/* <div className="flex justify-center">
 
                 <Button variant="outline" type="button" className="w-1/4">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -92,7 +92,7 @@ export function LoginForm({
                   <span className="sr-only">Login with Google</span>
                 </Button>
 
-              </div>
+              </div> */}
               <div className="text-center text-sm">
                 No tienes una cuenta?{" "}
                 <a href="#" className="underline underline-offset-4">

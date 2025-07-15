@@ -10,6 +10,7 @@ import { ThemeProvider } from "./core/theme/components/theme-provider"
 import { AuthPage } from "@/features/auth/pages/AuthPage"
 import { store } from "./app/store";
 import { HomePage } from "./features/home/pages/HomePage";
+import { DashboardPage } from './features/dashboard/pages/DashboardPage';
 
 const router = createBrowserRouter([
   {
@@ -20,6 +21,11 @@ const router = createBrowserRouter([
     path: "/home",
     element: <HomePage />,
   },
+  {
+    path: "/dashboard/:businessId",
+    element: <DashboardPage/>
+  }
+
 ]);
 
 createRoot(document.getElementById('root')!).render(

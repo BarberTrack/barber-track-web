@@ -4,14 +4,19 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/sha
 import { Button } from '@/shared/components/shadcn/button'
 import { Badge } from '@/shared/components/shadcn/badge'
 import { useBusiness } from '../hooks/useBusiness'
+import { useNavigate } from 'react-router'
 
 export const ListBusiness = () => {
     const { businesses } = useBusiness();
+    const navigate = useNavigate();
+    const handleCardClick = (businessId: string) => {
+        navigate(`/dashboard/${businessId}`); 
+    };
     return (
         <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {businesses.map((barberia) => (
-                    <Card className="hover:shadow-lg transition-shadow duration-300 cursor-pointer group" key={barberia.id}>
+                    <Card className="hover:shadow-lg transition-shadow duration-300 cursor-pointer group" key={barberia.id} onClick={() => handleCardClick(barberia.id)}    >
                         <div className="relative h-48 overflow-hidden rounded-t-lg">
                             {barberia.galleryImages === null ? <>
                                 <p>sin imagen</p>
@@ -59,7 +64,7 @@ export const ListBusiness = () => {
             </div>
 
             {businesses.length === 0 && (
-                <div className="text-center py-12">
+                <div className="h-screen text-center py-12">
                     <div className="w-24 h-24 mx-auto mb-4 bg-blue-100 rounded-full flex items-center justify-center">
                         <Clock className="w-12 h-12 text-blue-600" />
                     </div>
