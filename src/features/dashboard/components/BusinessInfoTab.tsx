@@ -7,6 +7,7 @@ import { Label } from '../../../shared/components/shadcn/label';
 import { Textarea } from '../../../shared/components/shadcn/textarea';
 import { Edit, Phone, Mail, MapPin } from 'lucide-react';
 import type { Business } from '../types/business.type';
+import { DialogDelete } from '../../../shared/components/DialogDelete';
 
 interface BusinessInfoTabProps {
   business: Business;
@@ -100,6 +101,7 @@ export const BusinessInfoTab = ({ business }: BusinessInfoTabProps) => {
             </div>
           </DialogContent>
         </Dialog>
+        <DialogDelete type="business" typeId={business.id} />
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

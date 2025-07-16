@@ -53,3 +53,9 @@ export interface BusinessesResponseModel {
     penalty: string;
   }
   
+export interface BusinessesDeleteResponseModel {
+  message: string;
+  businessId: string;
+  availabilityId: string;
+}
+

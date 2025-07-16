@@ -5,6 +5,8 @@ import businessServices from '../services/businessServices';
 import type { Barber } from '../types/barber.type';
 import type { Services } from '../types/services.type';
 import type { Reviews } from '../types/reviews.type';
+import type { BusinessesDeleteResponseModel } from '../types/business.type';
+
 interface BusinessState {
     business: Business | null;
     barbers: Barber[] | null;
@@ -76,6 +78,24 @@ export const getServicesByBusinessId = createAsyncThunk<
             return rejectWithValue(error.response?.data?.message || 'Error al obtener servicios');
         }
     });
+
+    export const deleteBusinessById = createAsyncThunk<
+    BusinessesDeleteResponseModel, // tipo de éxito
+    string, // el parámetro que recibes (businessId)
+    { rejectValue: string } // tipo de error
+  >(
+    'business/deleteBusinessById',
+    async (businessId, { rejectWithValue }) => {
+      try {
+        const response = await businessServices.deleteBusinessById(businessId);
+        return response;
+      } catch (error: any) {
+        return rejectWithValue(
+          error.response?.data?.message || 'Error al eliminar negocio'
+        );
+      }
+    }
+  );    
 
 export const getReviewsByBusinessId = createAsyncThunk<
     Reviews,
@@ -166,6 +186,17 @@ export const getReviewsByBusinessId = createAsyncThunk<
             .addCase(getReviewsByBusinessId.rejected, (state, action) => {
                 state.isLoadingReviews = false;
                 state.error = action.payload || 'Error al obtener reviews';
+            })
+            .addCase(deleteBusinessById.pending, (state) => {
+                state.isLoadingBusiness = true;
+            })
+            .addCase(deleteBusinessById.fulfilled, (state, action) => {
+                state.isLoadingBusiness = false;
+                state.business = null;
+            })
+            .addCase(deleteBusinessById.rejected, (state, action) => {
+                state.isLoadingBusiness = false;
+                state.error = action.payload || 'Error al eliminar negocio';
             });
     }
 }); 
