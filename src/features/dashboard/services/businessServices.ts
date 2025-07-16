@@ -5,6 +5,7 @@ import type { BarberCreateRequestModel, BarberResponseModel } from '../types/bar
 import type { ServicesResponseModel } from '../types/services.type';
 import type { ReviewsResponseModel } from '../types/reviews.type';
 import type { BusinessesDeleteResponseModel, BusinessUpdateRequestModel } from '../types/business.type';
+import type { BarberDeleteResponseModel } from '../types/barber.type';
 
 class BusinessServices {
     private api: AxiosInstance;
@@ -73,6 +74,11 @@ class BusinessServices {
     }
     async createBarber(barber: BarberCreateRequestModel): Promise<BarberResponseModel>{
       const response = await this.api.post<BarberResponseModel>(`barbers`, barber);
+      return response.data
+    }
+
+    async deleteBarberById(barberId: string): Promise<BarberDeleteResponseModel>{
+      const response = await this.api.delete<BarberDeleteResponseModel>(`barbers/${barberId}`);
       return response.data
     }
 

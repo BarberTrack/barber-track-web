@@ -3,9 +3,11 @@ import { Button } from './shadcn/button';
 import { Trash2 } from 'lucide-react';
 import { useDeleteBusiness } from '../../features/dashboard/hooks/useDeleteBusiness';
 import { ToastAlert } from './ToastAlert';
+import { useDeleteBarber } from '../../features/dashboard/hooks/useDeleteBarber';
 
-export const DialogDelete = ({type, typeId}: {type: 'business' | 'barber' | 'service' | 'review', typeId: string}) => {
+export const DialogDelete = ({type, typeId, businessId}: {type: 'business' | 'barbero' | 'service' | 'review', typeId: string, businessId: string}) => {
     const { deleteBusinessByIdApi } = useDeleteBusiness(typeId);
+    const { deleteBarberByIdApi } = useDeleteBarber(typeId, businessId);
 
     const handleDelete = async () => {
       if (type === 'business') {
@@ -15,6 +17,15 @@ export const DialogDelete = ({type, typeId}: {type: 'business' | 'barber' | 'ser
                 "Negocio eliminado correctamente",
                 "Datos guardados"
               );
+        } catch{
+            ToastAlert.success(
+                "Algo salio mal",
+                "Intenta de nuevo"
+              );
+        }
+      } else if (type === 'barbero') {
+        try{
+            await deleteBarberByIdApi();
         } catch{
             ToastAlert.success(
                 "Algo salio mal",

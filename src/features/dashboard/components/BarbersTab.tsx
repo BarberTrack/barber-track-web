@@ -10,6 +10,7 @@ import { Switch } from '../../../shared/components/shadcn/switch';
 import { Plus, Edit, User, Star, Clock } from 'lucide-react';
 import type{ Barber, WorkSchedule, BarberCreateRequestModel } from '../types/barber.type';
 import { useCreateBarber } from '../hooks/useCreateBarber';
+import { DialogDelete } from '@/shared/components/DialogDelete';
 
 interface BarbersTabProps {
   barbers: Barber[];
@@ -42,7 +43,7 @@ export const BarbersTab = ({ barbers, businessId }: BarbersTabProps) => {
   const [specialtyInput, setSpecialtyInput] = useState('');
 
   const { handleCreateBarber } = useCreateBarber(businessId);
-
+    
   const handleAddSpecialty = () => {
     if (specialtyInput.trim() && !newBarbero.specialties.includes(specialtyInput.trim())) {
       setNewBarbero({
@@ -325,6 +326,7 @@ export const BarbersTab = ({ barbers, businessId }: BarbersTabProps) => {
                     <Button variant="outline" size="sm">
                       <Edit className="w-4 h-4" />
                     </Button>
+                    <DialogDelete type="barbero" typeId={barbero.id} businessId={businessId} />
                   </div>
                 </div>
               </Card>

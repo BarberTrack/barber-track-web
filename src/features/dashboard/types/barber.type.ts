@@ -46,3 +46,9 @@ export interface BarberCreateRequestModel {
     workSchedule: WorkSchedule;
     yearsExperience: number;
 }
+
+export interface BarberDeleteResponseModel {
+    message: string;
+    deleted: boolean;
+}
+

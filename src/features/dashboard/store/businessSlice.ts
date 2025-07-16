@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { Business } from '../types/business.type';
 import businessServices from '../services/businessServices';
-import type { Barber, BarberCreateRequestModel } from '../types/barber.type';
+import type { Barber, BarberCreateRequestModel, BarberDeleteResponseModel } from '../types/barber.type';
 import type { Services } from '../types/services.type';
 import type { Reviews } from '../types/reviews.type';
 import type { BusinessesDeleteResponseModel } from '../types/business.type';
@@ -130,6 +130,22 @@ export const createBarber = createAsyncThunk<
         }
     }); 
 
+    export const deleteBarberById = createAsyncThunk<
+    BarberDeleteResponseModel,
+    string,
+    { rejectValue: string }
+>(
+    'business/deleteBarberById',
+    async (barberId, { rejectWithValue }) => {
+        try {
+            const response = await businessServices.deleteBarberById(barberId);
+            return response;
+        }
+        catch (error: any) {
+            return rejectWithValue(error.response?.data?.message || 'Error al eliminar barbero');
+        }
+    });     
+
 export const getReviewsByBusinessId = createAsyncThunk<
     Reviews,
     string,
@@ -255,8 +271,20 @@ export const getReviewsByBusinessId = createAsyncThunk<
             .addCase(createBarber.rejected, (state, action) => {
                 state.isLoadingBarbers = false;
                 state.error = action.payload as string || 'Error al crear barbero';   
+            })
+            // Delete Barber cases
+            .addCase(deleteBarberById.pending, (state) => {
+                state.isLoadingBarbers = true;
+            })
+            .addCase(deleteBarberById.fulfilled, (state, action) => {
+                state.isLoadingBarbers = false;
+                state.barbers = state.barbers;
+            })
+            .addCase(deleteBarberById.rejected, (state, action) => {
+                state.isLoadingBarbers = false;
+                state.error = action.payload as string || 'Error al eliminar barbero';
             });
-                    }
+        }
 }); 
 
 export const { clearBusiness, clearBarbers, clearServices, clearReviews } = businessByIdSlice.actions;
