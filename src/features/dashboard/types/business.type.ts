@@ -59,3 +59,12 @@ export interface BusinessesDeleteResponseModel {
   availabilityId: string;
 }
 
+
+export interface BusinessUpdateRequestModel {
+    name: string;
+    description: string;
+    address: string;
+    phone: string;
+    businessHours: BusinessHours;
+    cancellationPolicy: CancellationPolicy;
+}

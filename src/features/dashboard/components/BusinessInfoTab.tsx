@@ -8,6 +8,7 @@ import { Textarea } from '../../../shared/components/shadcn/textarea';
 import { Edit, Phone, Mail, MapPin } from 'lucide-react';
 import type { Business } from '../types/business.type';
 import { DialogDelete } from '../../../shared/components/DialogDelete';
+import { useUpdateBusiness } from '../hooks/useUpdateBusiness'; 
 
 interface BusinessInfoTabProps {
   business: Business;
@@ -20,13 +21,17 @@ export const BusinessInfoTab = ({ business }: BusinessInfoTabProps) => {
     name: business.name,
     description: business.description,
     phone: business.phone,
-    email: business.email,
     address: business.address,
   });
+  const businessHours = {...business.businessHours}
+  const cancellationPolicy = {...business.cancellationPolicy}
 
-  const handleSaveChanges = () => {
-    // TODO: Implementar la llamada a la API para actualizar la información
-    console.log('Actualizando información:', editedInfo);
+  const { updateBusinessByIdApi } = useUpdateBusiness();
+
+  const handleSaveChanges = async () => {
+    const updatedInfo = {...editedInfo, businessHours, cancellationPolicy}
+    await updateBusinessByIdApi(business.id, updatedInfo);
+
     setEditInfoModal(false);
   };
 
@@ -82,14 +87,7 @@ export const BusinessInfoTab = ({ business }: BusinessInfoTabProps) => {
                   onChange={(e) => setEditedInfo({ ...editedInfo, phone: e.target.value })}
                 />
               </div>
-              <div className="grid gap-2">
-                <Label htmlFor="edit-email">Email</Label>
-                <Input
-                  id="edit-email"
-                  value={editedInfo.email}
-                  onChange={(e) => setEditedInfo({ ...editedInfo, email: e.target.value })}
-                />
-              </div>
+
             </div>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setEditInfoModal(false)}>

@@ -4,7 +4,7 @@ import type { BusinessesResponseModel } from '../types/business.type';
 import type { BarberResponseModel } from '../types/barber.type';
 import type { ServicesResponseModel } from '../types/services.type';
 import type { ReviewsResponseModel } from '../types/reviews.type';
-import type { BusinessesDeleteResponseModel } from '../types/business.type';
+import type { BusinessesDeleteResponseModel, BusinessUpdateRequestModel } from '../types/business.type';
 
 class BusinessServices {
     private api: AxiosInstance;
@@ -67,7 +67,10 @@ class BusinessServices {
       const response = await this.api.delete<BusinessesDeleteResponseModel>(`businesses/${businessId}`);
       return response.data
     }
-    
+    async updateBusinessById(businessId: string, business: BusinessUpdateRequestModel): Promise<BusinessesResponseModel>{
+      const response = await this.api.put<BusinessesResponseModel>(`businesses/${businessId}`, business);
+      return response.data
+    }
 
 }
 
