@@ -11,6 +11,8 @@ import { AuthPage } from "@/features/auth/pages/AuthPage"
 import { store } from "./app/store";
 import { HomePage } from "./features/home/pages/HomePage";
 import { DashboardPage } from './features/dashboard/pages/DashboardPage';
+import { CreateBusinessPage } from './features/createBusiness/page/CreateBusinessPage';
+import { Toaster } from './shared/components/shadcn/sonner';
 
 const router = createBrowserRouter([
   {
@@ -24,6 +26,10 @@ const router = createBrowserRouter([
   {
     path: "/dashboard/:businessId",
     element: <DashboardPage/>
+  },
+  {
+    path: "/create-business",
+    element: <CreateBusinessPage/>
   }
 
 ]);
@@ -33,6 +39,7 @@ createRoot(document.getElementById('root')!).render(
     <Provider store={store}>
       <ThemeProvider>
         <RouterProvider router={router} />
+        <Toaster richColors/>
       </ThemeProvider>
     </Provider>
   </StrictMode>,
