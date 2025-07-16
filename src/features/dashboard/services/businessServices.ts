@@ -2,7 +2,7 @@ import axios from 'axios';
 import type { AxiosInstance } from 'axios';
 import type { BusinessesResponseModel } from '../types/business.type';
 import type { BarberCreateRequestModel, BarberResponseModel } from '../types/barber.type';
-import type { ServicesResponseModel } from '../types/services.type';
+import type { ServicesResponseModel, ServiceCreateRequest, ServiceCreateResponse } from '../types/services.type';
 import type { ReviewsResponseModel } from '../types/reviews.type';
 import type { BusinessesDeleteResponseModel, BusinessUpdateRequestModel } from '../types/business.type';
 import type { BarberDeleteResponseModel } from '../types/barber.type';
@@ -80,6 +80,11 @@ class BusinessServices {
     async deleteBarberById(barberId: string): Promise<BarberDeleteResponseModel>{
       const response = await this.api.delete<BarberDeleteResponseModel>(`barbers/${barberId}`);
       return response.data
+    }
+
+    async createService(serviceData: ServiceCreateRequest): Promise<ServiceCreateResponse> {
+        const response = await this.api.post<ServiceCreateResponse>(`/services-business`, serviceData);
+        return response.data;
     }
 
 }

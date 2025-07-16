@@ -101,7 +101,7 @@ export const DashboardPage = () => {
           </TabsContent>
 
           <TabsContent value="servicios">
-            <ServicesTab services={services?.services || []} businessId={businessId || ''} />
+            <ServicesTab services={services?.services || []} businessId={businessId || ''} barbers={barbers || []} />
           </TabsContent>
 
           <TabsContent value="reviews">

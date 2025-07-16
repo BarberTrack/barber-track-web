@@ -10,31 +10,75 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../../shared/components/shadcn/table';
 import { Plus, Edit, Trash2 } from 'lucide-react';
 import type{ Service } from '../types/services.type';
+import type { Barber } from '../types/barber.type';
+import type { BarberAssignmentRequest } from '../types/services.type';
+import { useCreateService } from '../hooks/useCreateService';
 
 interface ServicesTabProps {
   services: Service[];
   businessId: string;
+  barbers: Barber[];
 }
 
-export const ServicesTab = ({ services }: ServicesTabProps) => {
+interface ServiceFormData {
+  name: string;
+  description: string;
+  price: string;
+  durationMinutes: number;
+  selectedBarberId: string;
+}
+
+export const ServicesTab = ({ services, businessId, barbers }: ServicesTabProps) => {
   const [addServicioModal, setAddServicioModal] = useState(false);
-  const [newServicio, setNewServicio] = useState({
+  const [newServicio, setNewServicio] = useState<ServiceFormData>({
     name: '',
     description: '',
     price: '',
     durationMinutes: 30,
+    selectedBarberId: ''
   });
 
-  const handleAddServicio = () => {
-    // TODO: Implementar la llamada a la API para agregar servicio
-    console.log('Agregando servicio:', newServicio);
-    setAddServicioModal(false);
-    setNewServicio({
-      name: '',
-      description: '',
-      price: '',
-      durationMinutes: 30,
-    });
+  const { createService, isCreating } = useCreateService();
+
+  const getBarberName = (barberId: string) => {
+    const barber = barbers.find(b => b.id === barberId);
+    return barber ? `${barber.firstName} ${barber.lastName}` : 'Barbero no encontrado';
+  };
+
+  const handleAddServicio = async () => {
+    if (!newServicio.name || !newServicio.description || !newServicio.price || !newServicio.selectedBarberId) {
+      alert('Por favor completa todos los campos y selecciona un barbero');
+      return;
+    }
+
+    try {
+      const servicePrice = Number.parseFloat(newServicio.price);
+      
+      await createService({
+        businessId,
+        name: newServicio.name,
+        description: newServicio.description,
+        price: servicePrice,
+        durationMinutes: newServicio.durationMinutes,
+        barberAssignments: [{
+          barberId: newServicio.selectedBarberId,
+          specialPrice: servicePrice, // Mismo precio que el servicio
+          isPreferred: true // Siempre true
+        }]
+      });
+
+      // Limpiar formulario y cerrar modal
+      setAddServicioModal(false);
+      setNewServicio({
+        name: '',
+        description: '',
+        price: '',
+        durationMinutes: 30,
+        selectedBarberId: ''
+      });
+    } catch (error) {
+      console.error('Error al crear servicio:', error);
+    }
   };
 
   return (
@@ -81,6 +125,7 @@ export const ServicesTab = ({ services }: ServicesTabProps) => {
                   <Input
                     id="service-price"
                     type="number"
+                    step="0.01"
                     value={newServicio.price}
                     onChange={(e) => setNewServicio({ ...newServicio, price: e.target.value })}
                     placeholder="150.00"
@@ -107,13 +152,42 @@ export const ServicesTab = ({ services }: ServicesTabProps) => {
                   </Select>
                 </div>
               </div>
+
+              {/* Selección de barbero */}
+              <div className="grid gap-2">
+                <Label htmlFor="barber-select">Barbero asignado</Label>
+                <Select 
+                  value={newServicio.selectedBarberId} 
+                  onValueChange={(barberId) => setNewServicio({ ...newServicio, selectedBarberId: barberId })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecciona un barbero" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {barbers.map((barber) => (
+                      <SelectItem key={barber.id} value={barber.id}>
+                        {barber.firstName} {barber.lastName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {newServicio.selectedBarberId && (
+                  <p className="text-sm text-gray-600">
+                    Barbero seleccionado: <span className="font-medium">{getBarberName(newServicio.selectedBarberId)}</span>
+                  </p>
+                )}
+              </div>
             </div>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setAddServicioModal(false)}>
                 Cancelar
               </Button>
-              <Button onClick={handleAddServicio} className="bg-blue-600 hover:bg-blue-700">
-                Agregar Servicio
+              <Button 
+                onClick={handleAddServicio} 
+                className="bg-blue-600 hover:bg-blue-700"
+                disabled={isCreating}
+              >
+                {isCreating ? 'Creando...' : 'Agregar Servicio'}
               </Button>
             </div>
           </DialogContent>
@@ -132,6 +206,7 @@ export const ServicesTab = ({ services }: ServicesTabProps) => {
                 <TableHead>Descripción</TableHead>
                 <TableHead>Precio</TableHead>
                 <TableHead>Duración</TableHead>
+                <TableHead>Barbero</TableHead>
                 <TableHead>Estado</TableHead>
                 <TableHead>Acciones</TableHead>
               </TableRow>
@@ -143,6 +218,17 @@ export const ServicesTab = ({ services }: ServicesTabProps) => {
                   <TableCell className="max-w-xs truncate">{servicio.description}</TableCell>
                   <TableCell>${servicio.price}</TableCell>
                   <TableCell>{servicio.durationMinutes} min</TableCell>
+                  <TableCell>
+                    {servicio.barberAssignments.length > 0 ? (
+                      <Badge variant="default" className="text-xs">
+                        {servicio.barberAssignments[0].first_name} {servicio.barberAssignments[0].last_name} ⭐
+                      </Badge>
+                    ) : (
+                      <Badge variant="secondary" className="text-xs">
+                        Sin barbero
+                      </Badge>
+                    )}
+                  </TableCell>
                   <TableCell>
                     <Badge
                       className={servicio.isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}

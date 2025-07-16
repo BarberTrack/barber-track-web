@@ -3,7 +3,7 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import type { Business } from '../types/business.type';
 import businessServices from '../services/businessServices';
 import type { Barber, BarberCreateRequestModel, BarberDeleteResponseModel } from '../types/barber.type';
-import type { Services } from '../types/services.type';
+import type { Services, ServiceCreateRequest, ServiceCreateResponse } from '../types/services.type';
 import type { Reviews } from '../types/reviews.type';
 import type { BusinessesDeleteResponseModel } from '../types/business.type';
 import type { BusinessUpdateRequestModel } from '../types/business.type';
@@ -17,6 +17,7 @@ interface BusinessState {
     isLoadingBarbers: boolean;
     isLoadingServices: boolean;
     isLoadingReviews: boolean;
+    isCreatingService: boolean;
     error: string | null;
 }
 
@@ -29,6 +30,7 @@ const initialState: BusinessState = {
     isLoadingBarbers: false,
     isLoadingServices: false,
     isLoadingReviews: false,
+    isCreatingService: false,
     error: null,
 }
 
@@ -145,6 +147,22 @@ export const createBarber = createAsyncThunk<
             return rejectWithValue(error.response?.data?.message || 'Error al eliminar barbero');
         }
     });     
+
+export const createService = createAsyncThunk<
+    ServiceCreateResponse,
+    ServiceCreateRequest,
+    { rejectValue: string }
+>(
+    'business/createService',
+    async (serviceData, { rejectWithValue }) => {
+        try {
+            const response = await businessServices.createService(serviceData);
+            return response;
+        }
+        catch (error: any) {
+            return rejectWithValue(error.response?.data?.message || 'Error al crear servicio');
+        }
+    });
 
 export const getReviewsByBusinessId = createAsyncThunk<
     Reviews,
@@ -283,6 +301,19 @@ export const getReviewsByBusinessId = createAsyncThunk<
             .addCase(deleteBarberById.rejected, (state, action) => {
                 state.isLoadingBarbers = false;
                 state.error = action.payload as string || 'Error al eliminar barbero';
+            })
+            // Create Service cases
+            .addCase(createService.pending, (state) => {
+                state.isCreatingService = true;
+                state.error = null;
+            })
+            .addCase(createService.fulfilled, (state, action: PayloadAction<ServiceCreateResponse>) => {
+                state.isCreatingService = false;
+                // No agregamos al array aquí porque inmediatamente después se recarga la lista completa
+            })
+            .addCase(createService.rejected, (state, action) => {
+                state.isCreatingService = false;
+                state.error = action.payload as string || 'Error al crear servicio';
             });
         }
 }); 
@@ -294,3 +325,4 @@ export const selectBusinessById = (state: { businessById: BusinessState }) => st
 export const selectBarbersByBusinessId = (state: { businessById: BusinessState }) => state.businessById.barbers;
 export const selectServicesByBusinessId = (state: { businessById: BusinessState }) => state.businessById.services;
 export const selectReviewsByBusinessId = (state: { businessById: BusinessState }) => state.businessById.reviews;
+export const selectIsCreatingService = (state: { businessById: BusinessState }) => state.businessById.isCreatingService;
