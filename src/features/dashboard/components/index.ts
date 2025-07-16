@@ -1,6 +1,7 @@
 export { BusinessInfoTab } from './BusinessInfoTab';
-export { BusinessHoursTab } from './BusinessHoursTab';
-export { BarbersTab } from './BarbersTab';
-export { ServicesTab } from './ServicesTab';
 export { ReviewsTab } from './ReviewsTab';
-export { GalleryTab } from './GalleryTab'; 
+export { ServicesTab } from './ServicesTab';
+export { GalleryTab } from './GalleryTab';
+export { BarbersTab } from './BarbersTab';
+export { BusinessHoursTab } from './BusinessHoursTab';
+export { BusinessHoursSelector } from './BusinessHoursSelector'; 

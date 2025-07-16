@@ -3,20 +3,22 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../..
 import { Button } from '../../../shared/components/shadcn/button';
 import { Badge } from '../../../shared/components/shadcn/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../../../shared/components/shadcn/dialog';
-import { Input } from '../../../shared/components/shadcn/input';
-import { Label } from '../../../shared/components/shadcn/label';
-import { Switch } from '../../../shared/components/shadcn/switch';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../../shared/components/shadcn/table';
 import { Edit } from 'lucide-react';
-import type { Business, BusinessHourDay } from '../types/business.type';
+import { BusinessHoursSelector } from './BusinessHoursSelector';
+import { useUpdateBusiness } from '../hooks/useUpdateBusiness';
+import type { Business, BusinessHourDay, BusinessHours } from '../types/business.type';
 
 interface BusinessHoursTabProps {
   business: Business;
   businessId: string;
 }
 
-export const BusinessHoursTab = ({ business }: BusinessHoursTabProps) => {
+export const BusinessHoursTab = ({ business, businessId }: BusinessHoursTabProps) => {
   const [editHorariosModal, setEditHorariosModal] = useState(false);
+  const [tempBusinessHours, setTempBusinessHours] = useState<BusinessHours>(business.businessHours);
+  const [isLoading, setIsLoading] = useState(false);
+  const { updateBusinessByIdApi } = useUpdateBusiness();
 
   const diasSemana = [
     { key: 'monday', label: 'Lunes' },
@@ -28,10 +30,38 @@ export const BusinessHoursTab = ({ business }: BusinessHoursTabProps) => {
     { key: 'sunday', label: 'Domingo' },
   ];
 
-  const handleSaveHorarios = () => {
-    // TODO: Implementar la llamada a la API para actualizar los horarios
-    console.log('Actualizando horarios');
-    setEditHorariosModal(false);
+  const handleOpenModal = () => {
+    setTempBusinessHours(business.businessHours);
+    setEditHorariosModal(true);
+  };
+
+  const handleSaveHorarios = async () => {
+    setIsLoading(true);
+    try {
+      const updateData = {
+        name: business.name,
+        description: business.description,
+        address: business.address,
+        phone: business.phone,
+        businessHours: tempBusinessHours,
+        cancellationPolicy: business.cancellationPolicy,
+      };
+
+      await updateBusinessByIdApi(businessId, updateData);
+      setEditHorariosModal(false);
+    } catch (error) {
+      console.error('Error al actualizar horarios:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const formatTimeDisplay = (time: string) => {
+    const [hours, minutes] = time.split(':');
+    const hour = parseInt(hours);
+    const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+    const ampm = hour < 12 ? 'AM' : 'PM';
+    return `${displayHour}:${minutes} ${ampm}`;
   };
 
   return (
@@ -43,50 +73,36 @@ export const BusinessHoursTab = ({ business }: BusinessHoursTabProps) => {
         </div>
         <Dialog open={editHorariosModal} onOpenChange={setEditHorariosModal}>
           <DialogTrigger asChild>
-            <Button variant="outline">
+            <Button variant="outline" onClick={handleOpenModal}>
               <Edit className="w-4 h-4 mr-2" />
               Editar Horarios
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[600px]">
+          <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Editar Horarios</DialogTitle>
               <DialogDescription>Configura los horarios de atención para cada día</DialogDescription>
             </DialogHeader>
-            <div className="space-y-4 py-4">
-              {diasSemana.map((dia) => {
-                const horario = business.businessHours[dia.key as keyof typeof business.businessHours] as BusinessHourDay;
-                const isClosed = 'closed' in horario;
-                
-                return (
-                  <div key={dia.key} className="flex items-center justify-between p-3 border rounded-lg">
-                    <Label className="font-medium">{dia.label}</Label>
-                    <div className="flex items-center space-x-2">
-                      <Switch defaultChecked={!isClosed} />
-                      <Input 
-                        type="time" 
-                        className="w-24" 
-                        defaultValue={!isClosed ? horario.open : "09:00"} 
-                        disabled={isClosed}
-                      />
-                      <span>-</span>
-                      <Input 
-                        type="time" 
-                        className="w-24" 
-                        defaultValue={!isClosed ? horario.close : "18:00"} 
-                        disabled={isClosed}
-                      />
-                    </div>
-                  </div>
-                );
-              })}
+            <div className="py-4">
+              <BusinessHoursSelector
+                businessHours={tempBusinessHours}
+                onChange={setTempBusinessHours}
+              />
             </div>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setEditHorariosModal(false)}>
+              <Button 
+                variant="outline" 
+                onClick={() => setEditHorariosModal(false)}
+                disabled={isLoading}
+              >
                 Cancelar
               </Button>
-              <Button onClick={handleSaveHorarios} className="bg-blue-600 hover:bg-blue-700">
-                Guardar Horarios
+              <Button 
+                onClick={handleSaveHorarios} 
+                className="bg-blue-600 hover:bg-blue-700"
+                disabled={isLoading}
+              >
+                {isLoading ? 'Guardando...' : 'Guardar Horarios'}
               </Button>
             </div>
           </DialogContent>
@@ -121,7 +137,7 @@ export const BusinessHoursTab = ({ business }: BusinessHoursTabProps) => {
                       <span className="text-gray-500">-</span>
                     ) : (
                       <span>
-                        {horario.open} - {horario.close}
+                        {formatTimeDisplay(horario.open)} - {formatTimeDisplay(horario.close)}
                       </span>
                     )}
                   </TableCell>
