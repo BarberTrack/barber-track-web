@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { AxiosInstance } from 'axios';
 import type { BusinessesResponseModel } from '../types/business.type';
-import type { BarberResponseModel } from '../types/barber.type';
+import type { BarberCreateRequestModel, BarberResponseModel } from '../types/barber.type';
 import type { ServicesResponseModel } from '../types/services.type';
 import type { ReviewsResponseModel } from '../types/reviews.type';
 import type { BusinessesDeleteResponseModel, BusinessUpdateRequestModel } from '../types/business.type';
@@ -69,6 +69,10 @@ class BusinessServices {
     }
     async updateBusinessById(businessId: string, business: BusinessUpdateRequestModel): Promise<BusinessesResponseModel>{
       const response = await this.api.put<BusinessesResponseModel>(`businesses/${businessId}`, business);
+      return response.data
+    }
+    async createBarber(barber: BarberCreateRequestModel): Promise<BarberResponseModel>{
+      const response = await this.api.post<BarberResponseModel>(`barbers`, barber);
       return response.data
     }
 

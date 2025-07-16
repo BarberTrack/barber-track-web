@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { Business } from '../types/business.type';
 import businessServices from '../services/businessServices';
-import type { Barber } from '../types/barber.type';
+import type { Barber, BarberCreateRequestModel } from '../types/barber.type';
 import type { Services } from '../types/services.type';
 import type { Reviews } from '../types/reviews.type';
 import type { BusinessesDeleteResponseModel } from '../types/business.type';
@@ -10,7 +10,7 @@ import type { BusinessUpdateRequestModel } from '../types/business.type';
 
 interface BusinessState {
     business: Business | null;
-    barbers: Barber[] | null;
+    barbers: Barber[];
     services: Services | null;
     reviews: Reviews | null;
     isLoadingBusiness: boolean;
@@ -57,7 +57,7 @@ export const getBarbersByBusinessId = createAsyncThunk<
     async (businessId, { rejectWithValue }) => {
         try {
             const response = await businessServices.getBarbersByBusinessId(businessId);
-            return response.data;
+            return response.data; // response.data contiene el array de barberos
         }
         catch (error: any) {
             return rejectWithValue(error.response?.data?.message || 'Error al obtener barberos');
@@ -114,6 +114,21 @@ export const updateBusinessById = createAsyncThunk<
         }
         });
 
+export const createBarber = createAsyncThunk<
+    Barber,
+    BarberCreateRequestModel,
+    { rejectValue: string }
+>(
+    'business/createBarber',
+        async (barber, { rejectWithValue }) => {      
+        try {
+            const response = await businessServices.createBarber(barber);
+            return response.data[0];
+        }
+        catch (error: any) {
+            return rejectWithValue(error.response?.data?.message || 'Error al crear barbero');
+        }
+    }); 
 
 export const getReviewsByBusinessId = createAsyncThunk<
     Reviews,
@@ -228,8 +243,20 @@ export const getReviewsByBusinessId = createAsyncThunk<
             .addCase(updateBusinessById.rejected, (state, action) => {
                 state.isLoadingBusiness = false;
                 state.error = action.payload || 'Error al actualizar negocio';
+            })
+            // Create Barber cases
+            .addCase(createBarber.pending, (state) => {
+                state.isLoadingBarbers = true;
+            })
+            .addCase(createBarber.fulfilled, (state, action: PayloadAction<Barber>) => {
+                state.isLoadingBarbers = false;
+                // No agregamos al array aquí porque inmediatamente después se recarga la lista completa
+            })
+            .addCase(createBarber.rejected, (state, action) => {
+                state.isLoadingBarbers = false;
+                state.error = action.payload as string || 'Error al crear barbero';   
             });
-        }
+                    }
 }); 
 
 export const { clearBusiness, clearBarbers, clearServices, clearReviews } = businessByIdSlice.actions;
