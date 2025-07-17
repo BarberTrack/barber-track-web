@@ -1,17 +1,18 @@
-import { useDispatch } from 'react-redux';
-import type { AppDispatch } from '@/app/store';
-import { createBarber, getBarbersByBusinessId } from '../store/businessSlice';
+import { useAppDispatch } from '../../../app/hooks';
+import { createBarber } from '../store';
 import type { BarberCreateRequestModel } from '../types/barber.type';
 import { ToastAlert } from '@/shared/components/ToastAlert';
+import { getBarbersByBusinessId } from '../store';
 
 export const useCreateBarber = (businessId: string) => {
-    const dispatch = useDispatch<AppDispatch>();
+    const dispatch = useAppDispatch();
 
     const handleCreateBarber = async (barberData: BarberCreateRequestModel) => {
         try {           
             const result = await dispatch(createBarber(barberData)).unwrap();
-            
-            const barbersResult = await dispatch(getBarbersByBusinessId(businessId));
+            const barbersResult = await dispatch(getBarbersByBusinessId(businessId)).unwrap();
+            // El reducer ya agrega automáticamente el barbero a la lista
+            // No necesitamos hacer una llamada adicional a getBarbersByBusinessId
                        
             ToastAlert.success(
                 "Barbero creado correctamente",

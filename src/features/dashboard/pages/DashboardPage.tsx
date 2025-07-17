@@ -1,11 +1,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
-import { useBusinessById } from '../hooks/useBusinessById';
-import { useBarbersByBusinessId } from '../hooks/useBusinessById';
-import { useServicesByBusinessId } from '../hooks/useBusinessById';
-import { useReviewsByBusinessId } from '../hooks/useBusinessById';
+import { useDashboardData } from '../hooks/useDashboardData';
 import { Button } from '../../../shared/components/shadcn/button';
-import { Badge } from '../../../shared/components/shadcn/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../shared/components/shadcn/tabs';
 import { ArrowLeft, Star, MapPin, Clock, User, Scissors, MessageSquare, ImageIcon } from 'lucide-react';
 import { 
@@ -20,16 +16,22 @@ import {
 export const DashboardPage = () => {
   const { businessId } = useParams<{ businessId: string }>();
   const navigate = useNavigate();
-  const { business } = useBusinessById(businessId || '');
-  const { barbers } = useBarbersByBusinessId(businessId || '');
-  const { services } = useServicesByBusinessId(businessId || '');
-  const { reviews } = useReviewsByBusinessId(businessId || '');
+  
+  const {
+    business,
+    barbers,
+    services,
+    reviews,
+    isLoading,
+    hasError,
+    errors
+  } = useDashboardData(businessId || '');
   
   const [activeTab, setActiveTab] = useState("info");
 
-  if (!business) {
+  if (isLoading && !business) {
     return (
-      <div className="min-h-screen  flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-xl font-semibold text-gray-700">Cargando dashboard...</h2>
         </div>
@@ -37,9 +39,59 @@ export const DashboardPage = () => {
     );
   }
 
+  if (hasError && !business) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-red-600">Error al cargar dashboard</h2>
+          <p className="text-gray-600 mt-2">
+            {errors.business || errors.barbers || errors.services || errors.reviews || "Ocurrió un error inesperado"}
+          </p>
+          <div className="mt-2 text-sm text-gray-500">
+            Business ID: {businessId}
+          </div>
+          <Button onClick={() => navigate('/')} className="mt-4">
+            Volver al inicio
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isLoading && !business) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-gray-700">Negocio no encontrado</h2>
+          <div className="mt-2 text-sm text-gray-500">
+            <p>Business ID: {businessId}</p>
+            <p>Loading: {isLoading ? 'Sí' : 'No'}</p>
+            <p>Has Error: {hasError ? 'Sí' : 'No'}</p>
+            <p>Business Data: {business ? 'Existe' : 'Null/Undefined'}</p>
+          </div>
+          <Button onClick={() => window.location.reload()} className="mt-4 mr-2">
+            Recargar
+          </Button>
+          <Button onClick={() => navigate('/')} className="mt-4">
+            Volver al inicio
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!business) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-gray-700">Cargando datos del negocio...</h2>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen ">
-      {/* Header */}
       <div className="shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
@@ -58,7 +110,6 @@ export const DashboardPage = () => {
         </div>
       </div>
 
-      {/* Contenido Principal */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-6 lg:w-auto lg:grid-cols-6">

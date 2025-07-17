@@ -13,6 +13,7 @@ import type{ Service } from '../types/services.type';
 import type { Barber } from '../types/barber.type';
 import type { BarberAssignmentRequest } from '../types/services.type';
 import { useCreateService } from '../hooks/useCreateService';
+import { DialogDelete } from '@/shared/components/DialogDelete';
 
 interface ServicesTabProps {
   services: Service[];
@@ -37,7 +38,7 @@ export const ServicesTab = ({ services, businessId, barbers }: ServicesTabProps)
     durationMinutes: 30,
     selectedBarberId: ''
   });
-
+  //console.log(services);
   const { createService, isCreating } = useCreateService();
 
   const getBarberName = (barberId: string) => {
@@ -80,6 +81,11 @@ export const ServicesTab = ({ services, businessId, barbers }: ServicesTabProps)
       console.error('Error al crear servicio:', error);
     }
   };
+
+  const handleDeleteServicio = async (servicioId: string) => {
+
+    
+  }
 
   return (
     <Card>
@@ -241,9 +247,7 @@ export const ServicesTab = ({ services, businessId, barbers }: ServicesTabProps)
                       <Button variant="outline" size="sm">
                         <Edit className="w-4 h-4" />
                       </Button>
-                      <Button variant="outline" size="sm">
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      <DialogDelete type="servicio" typeId={servicio.id} businessId={businessId} />
                     </div>
                   </TableCell>
                 </TableRow>

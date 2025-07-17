@@ -4,13 +4,14 @@ import { Button } from "@/shared/components/shadcn/button"
 import { Card, CardContent } from "@/shared/components/shadcn/card"
 import { Input } from "@/shared/components/shadcn/input"
 import { Label } from "@/shared/components/shadcn/label"
-import { Navigate } from "react-router"
+import { useNavigate } from "react-router"
 import { useAuth } from '../hooks/useAuth';
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const navigate = useNavigate();
   const { login, isLoading, error, isAuthenticated, clearAuthError } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
@@ -21,9 +22,19 @@ export function LoginForm({
     return () => clearAuthError();
   }, [clearAuthError]);
 
-  if (isAuthenticated) {
-    return <Navigate to="/home" replace />;
-  }
+  // Navegar cuando el usuario se autentique exitosamente
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/home', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
+  // Si ya está autenticado al cargar, navegar inmediatamente
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/home', { replace: true });
+    }
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -38,7 +49,6 @@ export function LoginForm({
     try {
       await login(formData);
     } catch (error) {
-      console.error('Login failed:', error);
     }
   };
   return (

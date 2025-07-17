@@ -1,14 +1,20 @@
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from '../features/auth/store/authSlice';
 import businessReducer from '../features/home/store/businessSlice';
-import businessByIdReducer from '../features/dashboard/store/businessSlice';
+import dashboardBusinessReducer from '../features/dashboard/store/businessSlice';
+import barbersReducer from '../features/dashboard/store/barbersSlice';
+import servicesReducer from '../features/dashboard/store/servicesSlice';
+import reviewsReducer from '../features/dashboard/store/reviewsSlice';
 import createBusinessReducer from '../features/createBusiness/store/createBusinessSlice';
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     business: businessReducer,
-    businessById: businessByIdReducer,
+    dashboardBusiness: dashboardBusinessReducer,
+    barbers: barbersReducer,
+    services: servicesReducer,
+    reviews: reviewsReducer,
     createBusiness: createBusinessReducer,
   },
   middleware: (getDefaultMiddleware) =>

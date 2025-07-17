@@ -1,5 +1,3 @@
-import type { S } from "node_modules/react-router/dist/development/route-data-D7Xbr_Ww.d.mts";
-
 export interface BarberResponseModel {
     success: boolean;
     message: string;

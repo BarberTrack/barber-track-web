@@ -1,92 +1,75 @@
-import axios from 'axios';
-import type { AxiosInstance } from 'axios';
+import { apiClient } from '@/shared/utils/apiClient';
 import type { BusinessesResponseModel } from '../types/business.type';
 import type { BarberCreateRequestModel, BarberResponseModel } from '../types/barber.type';
 import type { ServicesResponseModel, ServiceCreateRequest, ServiceCreateResponse } from '../types/services.type';
 import type { ReviewsResponseModel } from '../types/reviews.type';
 import type { BusinessesDeleteResponseModel, BusinessUpdateRequestModel } from '../types/business.type';
 import type { BarberDeleteResponseModel } from '../types/barber.type';
+import type { ServiceDeleteResponseModel } from '../types/services.type';
+import type { Business } from '../types/business.type';
+import type { Services } from '../types/services.type';
+import type { Barber } from '../types/barber.type';
+import type { Reviews } from '../types/reviews.type';
 
 class BusinessServices {
-    private api: AxiosInstance;
-    private readonly baseURL = import.meta.env.VITE_API_URL;
-    
-    constructor() {
-        this.api = axios.create({
-          baseURL: this.baseURL,
-          headers: {
-            'Content-Type': 'application/json',
-            'accept': '*/*',
-          },
-        });
-        this.api.interceptors.request.use(
-          (config) => {
-            const token = localStorage.getItem('barbertrack_token');
-            if (token) {
-              config.headers.Authorization = `Bearer ${token}`;
-            }
-            return config;
-          },
-          (error) => Promise.reject(error)
-        );
-    
-        // Interceptor para manejar respuestas
-        this.api.interceptors.response.use(
-          (response) => response,
-          (error) => {
-            if (error.response?.status === 401) {
-              // Token expirado o inválido
-              localStorage.removeItem('barbertrack_token');
-              localStorage.removeItem('barbertrack_user');
-              window.location.href = '/';
-            }
-            return Promise.reject(error);
-          }
-        );
-      }
-      async getBusinessesById(businessId: string): Promise<BusinessesResponseModel> {
-        const response = await this.api.get<BusinessesResponseModel>(`/businesses/${businessId}`);
+    private readonly businessEndpoint = '/businesses';
+    private readonly barbersEndpoint = '/barbers';
+    private readonly servicesEndpoint = '/services-business';
+    private readonly reviewsEndpoint = '/reviews';
+
+    // Business methods
+    async getBusinessesById(businessId: string): Promise<Business> {
+        const response = await apiClient.get<Business>(`${this.businessEndpoint}/${businessId}`);
         return response.data;
     }
 
-    async getBarbersByBusinessId(businessId: string): Promise<BarberResponseModel> {
-        const response = await this.api.get<BarberResponseModel>(`/barbers/business/${businessId}`);
+    async deleteBusinessById(businessId: string): Promise<BusinessesDeleteResponseModel> {
+        const response = await apiClient.delete<BusinessesDeleteResponseModel>(`${this.businessEndpoint}/${businessId}`);
         return response.data;
     }
 
-    async getServicesByBusinessId(businessId: string): Promise<ServicesResponseModel> {
-        const response = await this.api.get<ServicesResponseModel>(`/services-business/business/${businessId}`);
+    async updateBusinessById(businessId: string, business: BusinessUpdateRequestModel): Promise<BusinessesResponseModel> {
+        const response = await apiClient.put<BusinessesResponseModel>(`${this.businessEndpoint}/${businessId}`, business);
         return response.data;
     }
 
-    async getReviewsByBusinessId(businessId: string): Promise<ReviewsResponseModel> {
-        const response = await this.api.get<ReviewsResponseModel>(`/reviews/business/${businessId}`);
+    // Barber methods
+    async getBarbersByBusinessId(businessId: string): Promise<Barber[]> {
+        const response = await apiClient.get<Barber[]>(`${this.barbersEndpoint}/business/${businessId}`);
         return response.data;
-    }   
-
-    async deleteBusinessById(businessId: string): Promise<BusinessesDeleteResponseModel>{
-      const response = await this.api.delete<BusinessesDeleteResponseModel>(`businesses/${businessId}`);
-      return response.data
-    }
-    async updateBusinessById(businessId: string, business: BusinessUpdateRequestModel): Promise<BusinessesResponseModel>{
-      const response = await this.api.put<BusinessesResponseModel>(`businesses/${businessId}`, business);
-      return response.data
-    }
-    async createBarber(barber: BarberCreateRequestModel): Promise<BarberResponseModel>{
-      const response = await this.api.post<BarberResponseModel>(`barbers`, barber);
-      return response.data
     }
 
-    async deleteBarberById(barberId: string): Promise<BarberDeleteResponseModel>{
-      const response = await this.api.delete<BarberDeleteResponseModel>(`barbers/${barberId}`);
-      return response.data
+    async createBarber(barber: BarberCreateRequestModel): Promise<Barber> {
+        const response = await apiClient.post<Barber>(`${this.barbersEndpoint}`, barber);
+        return response.data;
+    }
+
+    async deleteBarberById(barberId: string): Promise<BarberDeleteResponseModel> {
+        const response = await apiClient.delete<BarberDeleteResponseModel>(`${this.barbersEndpoint}/${barberId}`);
+        return response.data;
+    }
+
+    // Services methods
+    async getServicesByBusinessId(businessId: string): Promise<Services> {
+        const response = await apiClient.get<Services>(`${this.servicesEndpoint}/business/${businessId}`);
+        return response.data;
     }
 
     async createService(serviceData: ServiceCreateRequest): Promise<ServiceCreateResponse> {
-        const response = await this.api.post<ServiceCreateResponse>(`/services-business`, serviceData);
+        const response = await apiClient.post<ServiceCreateResponse>(`${this.servicesEndpoint}`, serviceData);
         return response.data;
     }
 
+    async deleteServiceById(serviceId: string): Promise<ServiceDeleteResponseModel> {
+        const response = await apiClient.delete<ServiceDeleteResponseModel>(`${this.servicesEndpoint}/${serviceId}`);
+        return response.data;
+    }
+
+    // Reviews methods
+    async getReviewsByBusinessId(businessId: string): Promise<Reviews> {
+        const response = await apiClient.get<Reviews>(`${this.reviewsEndpoint}/business/${businessId}`);
+        return response.data;
+    }
 }
 
 export const businessServices = new BusinessServices();

@@ -2,8 +2,7 @@ import { useCallback } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
 import { useNavigate } from 'react-router';
 import { selectAuth } from '../../auth/store/authSlice';
-import { deleteBarberById } from '../store/businessSlice';
-import {getBarbersByBusinessId} from '../store/businessSlice';
+import { deleteBarberById, getBarbersByBusinessId } from '../store';
 import { ToastAlert } from '@/shared/components/ToastAlert';
 
 export const useDeleteBarber = (barberId: string, businessId: string) => {

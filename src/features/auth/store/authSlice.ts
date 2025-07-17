@@ -21,8 +21,20 @@ export const loginUser = createAsyncThunk<
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await authService.login(credentials);
-      return response.data.data.data;
+
+      
+      // Verificar que la estructura existe antes de acceder
+      if (!response.data?.data) {
+
+        return rejectWithValue('Estructura de respuesta inesperada');
+      }
+      
+      const loginData = response.data.data;
+   
+      
+      return loginData;
     } catch (error: any) {
+   
       return rejectWithValue(error.response?.data?.message || 'Error al iniciar sesión');
     }
   }
@@ -77,6 +89,8 @@ const authSlice = createSlice({
         // Persistir en localStorage
         localStorage.setItem('barbertrack_token', action.payload.token);
         localStorage.setItem('barbertrack_user', JSON.stringify(action.payload.user));
+        
+        
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;

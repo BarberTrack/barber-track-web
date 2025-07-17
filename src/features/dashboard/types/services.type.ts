@@ -62,3 +62,9 @@ export interface ServiceCreateResponse {
     };
     created: boolean;
 }
+
+export interface ServiceDeleteResponseModel {
+    message: string;
+    serviceId: string;
+    deleted: boolean;
+}

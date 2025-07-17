@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
 import { useNavigate } from 'react-router';
 import { selectAuth } from '../../auth/store/authSlice';
-import { updateBusinessById } from '../store/businessSlice';
+import { updateBusinessById } from '../store';
 import { ToastAlert } from '../../../shared/components/ToastAlert';
 import type { BusinessUpdateRequestModel } from '../types/business.type';
 

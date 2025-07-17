@@ -54,22 +54,15 @@ export interface LoginCredentials {
   
   export interface AuthResponse {
     success: boolean;
-    message: string;
     data: {
-      success: boolean;
       data: {
-        success: boolean;
-        data: {
-          user: User;
-          token: string;
-          expiresIn: number;
-        };
-        timestamp: string;
-        service: string;
+        user: User;
+        token: string;
+        expiresIn: number;
       };
-      timestamp: string;
-      service: string;
     };
+    timestamp: string;
+    service: string;
   }
   
   export interface AuthState {

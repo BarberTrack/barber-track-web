@@ -32,12 +32,12 @@ export const useAuth = () => {
   const login = useCallback(async (credentials: LoginCredentials) => {
     try {
       const result = await dispatch(loginUser(credentials)).unwrap();
-      navigate('/home');
+      // La navegación se maneja en el componente cuando isAuthenticated cambie
       return result;
     } catch (error) {
       throw error;
     }
-  }, [dispatch, navigate]);
+  }, [dispatch]);
 
   const logout = useCallback(async () => {
     await dispatch(logoutUser());

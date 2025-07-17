@@ -1,62 +1,23 @@
-import axios from 'axios';
-import type { AxiosInstance } from 'axios';
+import { apiClient } from '@/shared/utils/apiClient';
 import type { LoginCredentials, AuthResponse } from '@/shared/types/auth.types';
 
 class AuthService {
-  private api: AxiosInstance;
-  private readonly baseURL = import.meta.env.VITE_API_URL;
-
-  constructor() {
-    this.api = axios.create({
-      baseURL: this.baseURL,
-      headers: {
-        'Content-Type': 'application/json',
-        'accept': '*/*',
-      },
-    });
-
-    // Interceptor para agregar el token a las requests
-    this.api.interceptors.request.use(
-      (config) => {
-        const token = localStorage.getItem('barbertrack_token');
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-      },
-      (error) => Promise.reject(error)
-    );
-
-    // Interceptor para manejar respuestas
-    this.api.interceptors.response.use(
-      (response) => response,
-      (error) => {
-        if (error.response?.status === 401) {
-          // Token expirado o inválido
-          localStorage.removeItem('barbertrack_token');
-          localStorage.removeItem('barbertrack_user');
-          window.location.href = '/';
-        }
-        return Promise.reject(error);
-      }
-    );
-  }
+  private readonly baseEndpoint = '/auth';
 
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
-    const response = await this.api.post<AuthResponse>('/auth/login/email', credentials);
+    const response = await apiClient.post<AuthResponse>(`${this.baseEndpoint}/login/email`, credentials);
     return response.data;
   }
 
   async logout(): Promise<void> {
     try {
       // Si tienes endpoint de logout en tu API
-      // await this.api.post('/auth/logout');
+      // await apiClient.post(`${this.baseEndpoint}/logout`);
       
       // Limpiar localStorage
       localStorage.removeItem('barbertrack_token');
       localStorage.removeItem('barbertrack_user');
     } catch (error) {
-      console.error('Error during logout:', error);
     }
   }
 

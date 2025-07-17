@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
 import { useNavigate } from 'react-router';
 import { selectAuth } from '../../auth/store/authSlice';
-import { deleteBusinessById } from '../store/businessSlice';
+import { deleteBusinessById } from '../store';
 
 export const useDeleteBusiness = (businessId:string) =>{
     const dispatch = useAppDispatch();

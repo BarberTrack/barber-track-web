@@ -99,7 +99,7 @@ export const BusinessInfoTab = ({ business }: BusinessInfoTabProps) => {
             </div>
           </DialogContent>
         </Dialog>
-        <DialogDelete type="business" typeId={business.id} />
+        <DialogDelete type="business" typeId={business.id} businessId={business.id} />
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

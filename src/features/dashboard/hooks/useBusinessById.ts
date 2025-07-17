@@ -1,23 +1,23 @@
 import { useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import {
-    getBusinessById,
-    selectBusinessById,
-    getBarbersByBusinessId,
-    selectBarbersByBusinessId,
-    selectServicesByBusinessId,
-    getServicesByBusinessId,
-    getReviewsByBusinessId,
-    selectReviewsByBusinessId
-} from '../store/businessSlice';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
 import { selectAuth } from '../../auth/store/authSlice';
+import { 
+    getBusinessById, 
+    selectBusiness,
+    getBarbersByBusinessId,
+    selectBarbers,
+    getServicesByBusinessId,
+    selectServices,
+    getReviewsByBusinessId,
+    selectReviews
+} from '../store';
 
 export const useBusinessById = (businessId: string) => {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const { token } = useAppSelector(selectAuth);
-    const business = useAppSelector(selectBusinessById);
+    const business = useAppSelector(selectBusiness);
 
     const getBusinessByIdApi = useCallback(async () => {
         if (!token) {
@@ -49,7 +49,7 @@ export const useBarbersByBusinessId = (businessId: string) => {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const { token } = useAppSelector(selectAuth);
-    const barbers = useAppSelector(selectBarbersByBusinessId);
+    const barbers = useAppSelector(selectBarbers);
 
     const getBarbersByBusinessIdApi = useCallback(async () => {
         if (!token) {
@@ -80,7 +80,7 @@ export const useServicesByBusinessId = (businessId: string) => {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const { token } = useAppSelector(selectAuth);
-    const services = useAppSelector(selectServicesByBusinessId);
+    const services = useAppSelector(selectServices);
 
     const getServicesByBusinessIdApi = useCallback(async () => {
         if (!token) {
@@ -111,7 +111,7 @@ export const useReviewsByBusinessId = (businessId: string) => {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const { token } = useAppSelector(selectAuth);
-    const reviews = useAppSelector(selectReviewsByBusinessId);
+    const reviews = useAppSelector(selectReviews);
     
     const getReviewsByBusinessIdApi = useCallback(async () => {
         if (!token) {
