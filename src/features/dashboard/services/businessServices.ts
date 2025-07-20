@@ -1,15 +1,15 @@
 import { apiClient } from '@/shared/utils/apiClient';
 import type { BusinessesResponseModel } from '../types/business.type';
-import type { BarberCreateRequestModel, BarberResponseModel } from '../types/barber.type';
-import type { ServicesResponseModel, ServiceCreateRequest, ServiceCreateResponse } from '../types/services.type';
-import type { ReviewsResponseModel } from '../types/reviews.type';
+import type { BarberCreateRequestModel } from '../types/barber.type';
+import type { ServiceCreateRequest, ServiceCreateResponse } from '../types/services.type';
+
 import type { BusinessesDeleteResponseModel, BusinessUpdateRequestModel } from '../types/business.type';
 import type { BarberDeleteResponseModel } from '../types/barber.type';
 import type { ServiceDeleteResponseModel } from '../types/services.type';
 import type { Business } from '../types/business.type';
 import type { Services } from '../types/services.type';
 import type { Barber } from '../types/barber.type';
-import type { Reviews } from '../types/reviews.type';
+import type { Reviews, ReviewsParams } from '../types/reviews.type';
 
 class BusinessServices {
     private readonly businessEndpoint = '/businesses';
@@ -65,9 +65,33 @@ class BusinessServices {
         return response.data;
     }
 
-    // Reviews methods
+    // Reviews methods (legacy - use getReviews instead)
     async getReviewsByBusinessId(businessId: string): Promise<Reviews> {
-        const response = await apiClient.get<Reviews>(`${this.reviewsEndpoint}/business/${businessId}`);
+        // Use the same endpoint as the new method but with default pagination
+        const response = await apiClient.get<Reviews>(`${this.reviewsEndpoint}?businessId=${businessId}&page=1&limit=50`);
+        return response.data;
+    }
+
+    async getReviews(params: ReviewsParams): Promise<Reviews> {
+        const { businessId, status, page = 1, limit = 10 } = params;
+        
+        const queryParams = new URLSearchParams({
+            businessId,
+            page: page.toString(),
+            limit: limit.toString(),
+        });
+
+        if (status && status !== 'all') {
+            queryParams.append('status', status);
+        }
+
+        const response = await apiClient.get<Reviews>(`${this.reviewsEndpoint}?${queryParams.toString()}`);
+        return response.data;
+        
+    }
+
+    async deleteReview(reviewId: string): Promise<{ message: string }> {
+        const response = await apiClient.delete<{ message: string }>(`${this.reviewsEndpoint}/${reviewId}`);
         return response.data;
     }
 }

@@ -16,11 +16,6 @@ import {
     selectServices,
     selectServicesLoading,
     selectServicesError,
-    // Reviews
-    getReviewsByBusinessId,
-    selectReviews,
-    selectReviewsLoading,
-    selectReviewsError,
 } from '../store';
 
 /**
@@ -45,11 +40,6 @@ export const useDashboardData = (businessId: string) => {
     const servicesLoading = useAppSelector(selectServicesLoading);
     const servicesError = useAppSelector(selectServicesError);
 
-    // Selectores de Reviews
-    const reviews = useAppSelector(selectReviews);
-    const reviewsLoading = useAppSelector(selectReviewsLoading);
-    const reviewsError = useAppSelector(selectReviewsError);
-
     // Cargar datos iniciales
     useEffect(() => {
         if (businessId) {
@@ -57,20 +47,18 @@ export const useDashboardData = (businessId: string) => {
             dispatch(getBusinessById(businessId));
             dispatch(getBarbersByBusinessId(businessId));
             dispatch(getServicesByBusinessId(businessId));
-            dispatch(getReviewsByBusinessId(businessId));
         }
     }, [dispatch, businessId]);
 
     // Estado combinado de loading
-    const isLoading = businessLoading || barbersLoading || servicesLoading || reviewsLoading;
+    const isLoading = businessLoading || barbersLoading || servicesLoading;
     
     // Estado combinado de errores
-    const hasError = !!(businessError || barbersError || servicesError || reviewsError);
+    const hasError = !!(businessError || barbersError || servicesError);
     const errors = {
         business: businessError,
         barbers: barbersError,
         services: servicesError,
-        reviews: reviewsError,
     };
 
     return {
@@ -78,13 +66,11 @@ export const useDashboardData = (businessId: string) => {
         business,
         barbers,
         services,
-        reviews,
         
         // Estados de loading individuales
         businessLoading,
         barbersLoading,
         servicesLoading,
-        reviewsLoading,
         
         // Estado de loading general
         isLoading,
@@ -93,7 +79,6 @@ export const useDashboardData = (businessId: string) => {
         businessError,
         barbersError,
         servicesError,
-        reviewsError,
         
         // Estado de error general
         hasError,

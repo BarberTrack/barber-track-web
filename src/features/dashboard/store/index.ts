@@ -35,10 +35,16 @@ export {
 // Reviews slice exports
 export {
   getReviewsByBusinessId,
+  getReviewsWithFilters,
   clearReviews,
+  setFilters,
+  setCurrentPage,
   selectReviews,
   selectReviewsLoading,
   selectReviewsError,
+  selectCurrentPage,
+  selectTotalReviews,
+  selectReviewsFilters,
 } from './reviewsSlice';
 
 // Re-export default reducers

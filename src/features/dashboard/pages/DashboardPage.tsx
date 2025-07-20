@@ -21,7 +21,6 @@ export const DashboardPage = () => {
     business,
     barbers,
     services,
-    reviews,
     isLoading,
     hasError,
     errors
@@ -45,7 +44,7 @@ export const DashboardPage = () => {
         <div className="text-center">
           <h2 className="text-xl font-semibold text-red-600">Error al cargar dashboard</h2>
           <p className="text-gray-600 mt-2">
-            {errors.business || errors.barbers || errors.services || errors.reviews || "Ocurrió un error inesperado"}
+            {errors.business || errors.barbers || errors.services || "Ocurrió un error inesperado"}
           </p>
           <div className="mt-2 text-sm text-gray-500">
             Business ID: {businessId}
@@ -166,7 +165,7 @@ export const DashboardPage = () => {
           </TabsContent>
 
           <TabsContent value="reviews">
-            <ReviewsTab reviews={reviews?.reviews || []} businessId={businessId || ''} />
+            <ReviewsTab businessId={businessId || ''} />
           </TabsContent>
 
           <TabsContent value="galeria">
