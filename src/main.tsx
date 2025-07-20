@@ -14,8 +14,8 @@ import { HomePage } from "./features/home/pages/HomePage";
 import { DashboardPage } from './features/dashboard/pages/DashboardPage';
 import { CreateBusinessPage } from './features/createBusiness/page/CreateBusinessPage';
 import { Toaster } from './shared/components/shadcn/sonner';
+import { AppointmentPage } from './features/appointments/pages/AppointmentPage';
 
-// Configurar apiClient al inicio de la aplicación
 configureApiClient();
 
 const router = createBrowserRouter([
@@ -34,7 +34,13 @@ const router = createBrowserRouter([
   {
     path: "/create-business",
     element: <CreateBusinessPage/>
-  }
+  },
+  {
+    path: "/appointments/:businessId",
+    element: <AppointmentPage/>
+  },
+
+  
 
 ]);
 
