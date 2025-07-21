@@ -104,6 +104,33 @@ class BusinessServices {
         const response = await apiClient.delete<{ message: string }>(`${this.reviewsEndpoint}/${reviewId}`);
         return response.data;
     }
+
+    // Gallery methods
+    async uploadGalleryImages(businessId: string, images: File[]): Promise<{ message: string; success: boolean }> {
+        const formData = new FormData();
+        
+        // Agregar cada imagen al FormData
+        images.forEach((image) => {
+            formData.append('images', image);
+        });
+
+        const response = await apiClient.getInstance().post(
+            `${this.businessEndpoint}/${businessId}/gallery`,
+            formData,
+            {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            }
+        );
+        
+        return response.data;
+    }
+
+    async deleteGalleryImage(imageId: string): Promise<{ message: string; success: boolean }> {
+        const response = await apiClient.delete<{ message: string; success: boolean }>(`${this.businessEndpoint}/media/${imageId}`);
+        return response.data;
+    }
 }
 
 export const businessServices = new BusinessServices();
