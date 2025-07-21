@@ -1,13 +1,15 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import { useNavigate } from 'react-router';
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/shadcn/card";
 import { Button } from "@/shared/components/shadcn/button";
 import { Input } from "@/shared/components/shadcn/input";
 import { Label } from "@/shared/components/shadcn/label";
 import { Textarea } from "@/shared/components/shadcn/textarea";
-import { MapPin, Edit2, Save, X, Building2, Clock, CheckCircle, AlertCircle } from "lucide-react";
+import { MapPin, Edit2, Save, X, Building2, Clock } from "lucide-react";
 import BusinessHoursSelector from "../components/BusinessHoursSelector";
 import MapComponent from "../components/MapComponent";
 import { useCreateBusiness } from "../hooks/useCreateBusiness";
+import { ToastAlert } from "@/shared/components/ToastAlert";
 import type { BusinessHours, Location, CreateBusinessFormData } from "../types/business.types";
 
 const defaultBusinessHours: BusinessHours = {
@@ -22,6 +24,7 @@ const defaultBusinessHours: BusinessHours = {
 
 export const CreateBusinessPage = () => {
   const { createBusiness, isLoading, error, success, clearError, clearSuccess, resetState } = useCreateBusiness();
+  const navigate = useNavigate();
 
   const [businessData, setBusinessData] = useState<CreateBusinessFormData>({
     name: "",
@@ -35,31 +38,40 @@ export const CreateBusinessPage = () => {
   const [isEditingAddress, setIsEditingAddress] = useState(false);
   const [editedAddress, setEditedAddress] = useState("");
 
-  // Limpiar mensajes después de un tiempo
+  // Manejar éxito y errores con ToastAlert
   useEffect(() => {
     if (success) {
-      const timer = setTimeout(() => {
-        clearSuccess();
-        // Resetear formulario después del éxito
-        setBusinessData({
-          name: "",
-          description: "",
-          phone: "",
-          email: "",
-          location: null,
-          businessHours: defaultBusinessHours,
-        });
-      }, 3000);
-      return () => clearTimeout(timer);
+      ToastAlert.success(
+        "¡Negocio creado exitosamente!",
+        "Tu barbería ha sido registrada correctamente"
+      );
+      
+      // Resetear formulario
+      setBusinessData({
+        name: "",
+        description: "",
+        phone: "",
+        email: "",
+        location: null,
+        businessHours: defaultBusinessHours,
+      });
+      
+      clearSuccess();
+      
+      // Navegar a home después de un breve delay
+      setTimeout(() => {
+        navigate('/');
+      }, 2000);
     }
-  }, [success, clearSuccess]);
+  }, [success, clearSuccess, navigate]);
 
   useEffect(() => {
     if (error) {
-      const timer = setTimeout(() => {
-        clearError();
-      }, 5000);
-      return () => clearTimeout(timer);
+      ToastAlert.error(
+        "Error al crear el negocio",
+        error || "Ha ocurrido un error inesperado"
+      );
+      clearError();
     }
   }, [error, clearError]);
 
@@ -149,19 +161,19 @@ export const CreateBusinessPage = () => {
   const handleSubmit = async () => {
     // Validaciones básicas
     if (!businessData.name.trim()) {
-      alert("El nombre del negocio es requerido");
+      ToastAlert.error("Campo requerido", "El nombre del negocio es requerido");
       return;
     }
     if (!businessData.email.trim()) {
-      alert("El email es requerido");
+      ToastAlert.error("Campo requerido", "El email es requerido");
       return;
     }
     if (!businessData.phone.trim()) {
-      alert("El teléfono es requerido");
+      ToastAlert.error("Campo requerido", "El teléfono es requerido");
       return;
     }
     if (!businessData.location) {
-      alert("La ubicación es requerida");
+      ToastAlert.error("Campo requerido", "La ubicación es requerida");
       return;
     }
 
@@ -170,6 +182,8 @@ export const CreateBusinessPage = () => {
       name: businessData.name.trim(),
       description: businessData.description.trim(),
       address: businessData.location.address,
+      latitude: businessData.location.latitude,
+      longitude: businessData.location.longitude,
       phone: businessData.phone.trim(),
       email: businessData.email.trim(),
       businessHours: businessData.businessHours,
@@ -177,13 +191,13 @@ export const CreateBusinessPage = () => {
         hoursBeforeAppointment: 24,
         refundPercentage: 100,
       },
-      //location: businessData.location,
     };
 
     try {
       await createBusiness(createBusinessData);
     } catch (error) {
       console.error("Error creando negocio:", error);
+      // El error será manejado automáticamente por el useEffect que escucha el estado error
     }
   };
 
@@ -195,20 +209,7 @@ export const CreateBusinessPage = () => {
           <p className="text-gray-200">Completa la información de tu negocio y selecciona la ubicación en el mapa</p>
         </div>
 
-        {/* Mensajes de estado */}
-        {error && (
-          <div className="flex items-center gap-2 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-            <AlertCircle className="h-5 w-5" />
-            <span>{error}</span>
-          </div>
-        )}
 
-        {success && (
-          <div className="flex items-center gap-2 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700">
-            <CheckCircle className="h-5 w-5" />
-            <span>¡Negocio creado exitosamente!</span>
-          </div>
-        )}
 
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           {/* Formulario de información básica */}
@@ -408,6 +409,8 @@ export const CreateBusinessPage = () => {
                     name: businessData.name,
                     description: businessData.description,
                     address: businessData.location?.address || "",
+                    latitude: businessData.location?.latitude || null,
+                    longitude: businessData.location?.longitude || null,
                     phone: businessData.phone,
                     email: businessData.email,
                     businessHours: businessData.businessHours,
