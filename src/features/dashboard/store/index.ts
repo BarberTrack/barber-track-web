@@ -25,10 +25,12 @@ export {
 export {
     getServicesByBusinessId,
     createService,
+    updateService,
     deleteServiceById,
     selectServices,
     selectServicesLoading,
     selectServicesCreating,
+    selectServicesUpdating,
     selectServicesError
 } from './servicesSlice';
 

@@ -1,12 +1,13 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import type { Services, ServiceCreateRequest, ServiceCreateResponse, ServiceDeleteResponseModel, Service } from '../types/services.type';
+import type { Services, ServiceCreateRequest, ServiceCreateResponse, ServiceDeleteResponseModel, Service, ServiceUpdateRequest, ServiceUpdateResponse } from '../types/services.type';
 import businessServices from '../services/businessServices';
 
 interface ServicesState {
     services: Services | null;
     isLoading: boolean;
     isCreating: boolean;
+    isUpdating: boolean;
     error: string | null;
 }
 
@@ -14,6 +15,7 @@ const initialState: ServicesState = {
     services: null,
     isLoading: false,
     isCreating: false,
+    isUpdating: false,
     error: null,
 }
 
@@ -49,6 +51,22 @@ export const createService = createAsyncThunk<
         }
     });
 
+export const updateService = createAsyncThunk<
+    ServiceUpdateResponse & { serviceId: string },
+    { serviceId: string; serviceData: ServiceUpdateRequest },
+    { rejectValue: string }
+>(
+    'services/updateService',
+    async ({ serviceId, serviceData }, { rejectWithValue }) => {
+        try {
+            const response = await businessServices.updateServiceById(serviceId, serviceData);
+            return { ...response, serviceId };
+        }
+        catch (error: any) {
+            return rejectWithValue(error.response?.data?.message || 'Error al actualizar servicio');
+        }
+    });
+
 export const deleteServiceById = createAsyncThunk<
     ServiceDeleteResponseModel,
     string,
@@ -74,6 +92,7 @@ export const servicesSlice = createSlice({
             state.error = null; 
             state.isLoading = false;
             state.isCreating = false;
+            state.isUpdating = false;
         },
     },
     extraReducers: (builder) => {
@@ -106,8 +125,8 @@ export const servicesSlice = createSlice({
                         price: action.payload.service.price.toString(), // Convert number to string
                         imageUrl: null, // Service type requires null
                         barberAssignments: [], // Add empty array as required by Service type
-                        createdAt: new Date(action.payload.service.createdAt),
-                        updatedAt: new Date(action.payload.service.updatedAt)
+                        createdAt: action.payload.service.createdAt, // Keep as string
+                        updatedAt: action.payload.service.updatedAt // Keep as string
                     };
                     state.services.services.push(newService);
                 }
@@ -115,6 +134,36 @@ export const servicesSlice = createSlice({
             .addCase(createService.rejected, (state, action) => {
                 state.isCreating = false;
                 state.error = action.payload as string || 'Error al crear servicio';
+            })
+            // Update Service cases
+            .addCase(updateService.pending, (state) => {
+                state.isUpdating = true;
+                state.error = null;
+            })
+            .addCase(updateService.fulfilled, (state, action) => {
+                state.isUpdating = false;
+                // Update the service in the array
+                if (state.services && action.payload.service) {
+                    const serviceIndex = state.services.services.findIndex(
+                        service => service.id === action.payload.serviceId
+                    );
+                    if (serviceIndex !== -1) {
+                        // Convert the response service to match the Service type
+                        const updatedService: Service = {
+                            ...action.payload.service,
+                            price: action.payload.service.price.toString(), // Convert number to string
+                            imageUrl: null, // Service type requires null
+                            barberAssignments: state.services.services[serviceIndex].barberAssignments, // Keep existing assignments
+                            createdAt: action.payload.service.createdAt, // Keep as string
+                            updatedAt: action.payload.service.updatedAt // Keep as string
+                        };
+                        state.services.services[serviceIndex] = updatedService;
+                    }
+                }
+            })
+            .addCase(updateService.rejected, (state, action) => {
+                state.isUpdating = false;
+                state.error = action.payload as string || 'Error al actualizar servicio';
             })
             // Delete Service cases
             .addCase(deleteServiceById.pending, (state) => {
@@ -139,4 +188,5 @@ export default servicesSlice.reducer;
 export const selectServices = (state: { services: ServicesState }) => state.services.services;
 export const selectServicesLoading = (state: { services: ServicesState }) => state.services.isLoading;
 export const selectServicesCreating = (state: { services: ServicesState }) => state.services.isCreating;
+export const selectServicesUpdating = (state: { services: ServicesState }) => state.services.isUpdating;
 export const selectServicesError = (state: { services: ServicesState }) => state.services.error; 

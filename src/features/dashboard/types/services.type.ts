@@ -19,8 +19,8 @@ export interface Service {
     imageUrl:          null;
     isActive:          boolean;
     barberAssignments: BarberAssignment[];
-    createdAt:         Date;
-    updatedAt:         Date;
+    createdAt:         string;
+    updatedAt:         string;
 }
 
 export interface BarberAssignment {
@@ -67,4 +67,29 @@ export interface ServiceDeleteResponseModel {
     message: string;
     serviceId: string;
     deleted: boolean;
+}
+
+// Tipos para actualizar servicio
+export interface ServiceUpdateRequest {
+    name: string;
+    description: string;
+    price: number;
+    durationMinutes: number;
+    barberAssignments: BarberAssignmentRequest[];
+}
+
+export interface ServiceUpdateResponse {
+    service: {
+        id: string;
+        businessId: string;
+        name: string;
+        description: string;
+        price: number;
+        durationMinutes: number;
+        imageUrl: string | null;
+        isActive: boolean;
+        createdAt: string;
+        updatedAt: string;
+    };
+    updated: boolean;
 }

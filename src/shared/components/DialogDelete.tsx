@@ -4,10 +4,12 @@ import { Trash2 } from 'lucide-react';
 import { useDeleteBusiness } from '../../features/dashboard/hooks/useDeleteBusiness';
 import { ToastAlert } from './ToastAlert';
 import { useDeleteBarber } from '../../features/dashboard/hooks/useDeleteBarber';
+import { useDeleteService } from '../../features/dashboard/hooks/useDeleteService';
 
 export const DialogDelete = ({type, typeId, businessId}: {type: 'business' | 'barbero' | 'servicio' | 'review', typeId: string, businessId: string}) => {
     const { deleteBusinessByIdApi } = useDeleteBusiness(typeId);
     const { deleteBarberByIdApi } = useDeleteBarber(typeId, businessId);
+    const { deleteServiceByIdApi } = useDeleteService(typeId, businessId);
 
     const handleDelete = async () => {
       if (type === 'business') {
@@ -18,7 +20,7 @@ export const DialogDelete = ({type, typeId, businessId}: {type: 'business' | 'ba
                 "Datos guardados"
               );
         } catch{
-            ToastAlert.success(
+            ToastAlert.error(
                 "Algo salio mal",
                 "Intenta de nuevo"
               );
@@ -27,16 +29,16 @@ export const DialogDelete = ({type, typeId, businessId}: {type: 'business' | 'ba
         try{
             await deleteBarberByIdApi();
         } catch{
-            ToastAlert.success(
+            ToastAlert.error(
                 "Algo salio mal",
                 "Intenta de nuevo"
               );
         }
       } else if (type === 'servicio') {
         try{
-            //await deleteServiceByIdApi();
+            await deleteServiceByIdApi();
         } catch{
-            ToastAlert.success(
+            ToastAlert.error(
                 "Algo salio mal",
                 "Intenta de nuevo"
               );
@@ -50,9 +52,8 @@ export const DialogDelete = ({type, typeId, businessId}: {type: 'business' | 'ba
     <>
     <Dialog>
         <DialogTrigger asChild>
-            <Button variant="destructive">
-                <Trash2 className="w-4 h-4 mr-2" />
-                Eliminar {type}
+            <Button variant="destructive" size="sm">
+                <Trash2 className="w-4 h-4" />
             </Button>
         </DialogTrigger>
         <DialogContent>
@@ -61,6 +62,7 @@ export const DialogDelete = ({type, typeId, businessId}: {type: 'business' | 'ba
                 <DialogDescription>¿Estás seguro de querer eliminar este {type}?</DialogDescription>
             </DialogHeader>
             <DialogFooter>
+                <Button variant="outline">Cancelar</Button>
                 <Button variant="destructive" onClick={handleDelete}>Eliminar {type}</Button>
             </DialogFooter>
         </DialogContent>

@@ -1,7 +1,7 @@
 import { apiClient } from '@/shared/utils/apiClient';
 import type { BusinessesResponseModel } from '../types/business.type';
 import type { BarberCreateRequestModel, BarberUpdateRequestModel } from '../types/barber.type';
-import type { ServiceCreateRequest, ServiceCreateResponse } from '../types/services.type';
+import type { ServiceCreateRequest, ServiceCreateResponse, ServiceUpdateRequest, ServiceUpdateResponse } from '../types/services.type';
 
 import type { BusinessesDeleteResponseModel, BusinessUpdateRequestModel } from '../types/business.type';
 import type { BarberDeleteResponseModel } from '../types/barber.type';
@@ -62,6 +62,11 @@ class BusinessServices {
 
     async createService(serviceData: ServiceCreateRequest): Promise<ServiceCreateResponse> {
         const response = await apiClient.post<ServiceCreateResponse>(`${this.servicesEndpoint}`, serviceData);
+        return response.data;
+    }
+
+    async updateServiceById(serviceId: string, serviceData: ServiceUpdateRequest): Promise<ServiceUpdateResponse> {
+        const response = await apiClient.put<ServiceUpdateResponse>(`${this.servicesEndpoint}/${serviceId}`, serviceData);
         return response.data;
     }
 
