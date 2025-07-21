@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../shared/components/shadcn/card';
 import { Button } from '../../../shared/components/shadcn/button';
 import { Badge } from '../../../shared/components/shadcn/badge';
@@ -7,11 +7,13 @@ import { Input } from '../../../shared/components/shadcn/input';
 import { Label } from '../../../shared/components/shadcn/label';
 import { Textarea } from '../../../shared/components/shadcn/textarea';
 import { Switch } from '../../../shared/components/shadcn/switch';
-import { Plus, Edit, User, Star, Clock } from 'lucide-react';
+import { Plus, Edit, User, Star, Clock, Upload, Image } from 'lucide-react';
 import type{ Barber, WorkSchedule, BarberCreateRequestModel, BarberUpdateRequestModel } from '../types/barber.type';
 import { useCreateBarber } from '../hooks/useCreateBarber';
 import { useUpdateBarber } from '../hooks/useUpdateBarber';
 import { DialogDelete } from '@/shared/components/DialogDelete';
+import businessServices from '../services/businessServices';
+import { ToastAlert } from '@/shared/components/ToastAlert';
 
 interface BarbersTabProps {
   barbers: Barber[];
@@ -55,6 +57,10 @@ export const BarbersTab = ({ barbers, businessId }: BarbersTabProps) => {
   });
   const [specialtyInput, setSpecialtyInput] = useState('');
   const [editSpecialtyInput, setEditSpecialtyInput] = useState('');
+  const [portfolioModal, setPortfolioModal] = useState(false);
+  const [selectedBarberForPortfolio, setSelectedBarberForPortfolio] = useState<Barber | null>(null);
+  
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { handleCreateBarber } = useCreateBarber(businessId);
   const { handleUpdateBarber } = useUpdateBarber(businessId);
@@ -208,6 +214,46 @@ export const BarbersTab = ({ barbers, businessId }: BarbersTabProps) => {
       isActive: barber.isActive,
     });
     setEditBarberoModal(true);
+  };
+
+  const handleUploadPortfolioImages = (barber: Barber) => {
+    setSelectedBarberForPortfolio(barber);
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || !selectedBarberForPortfolio) return;
+
+    const fileArray = Array.from(files);
+    
+    try {
+      await businessServices.uploadBarberPortfolioImages(selectedBarberForPortfolio.id, fileArray);
+      
+      ToastAlert.success(
+        fileArray.length === 1 ? "Imagen subida correctamente" : "Imágenes subidas correctamente",
+        "Portafolio actualizado"
+      );
+      
+      // Aquí podrías refrescar los datos del barbero si tienes una función para ello
+      window.location.reload(); // Temporal - idealmente deberías usar un refetch más elegante
+    } catch (error: any) {
+      console.error('Error al subir imágenes del portafolio:', error);
+      ToastAlert.error(
+        "Error al subir imágenes",
+        error?.message || "Intenta de nuevo"
+      );
+    }
+    
+    // Limpiar el input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleViewPortfolio = (barber: Barber) => {
+    setSelectedBarberForPortfolio(barber);
+    setPortfolioModal(true);
   };
 
   const dayNames = {
@@ -373,6 +419,16 @@ export const BarbersTab = ({ barbers, businessId }: BarbersTabProps) => {
         </Dialog>
       </CardHeader>
 
+      {/* Input oculto para subir imágenes del portafolio */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple
+        accept="image/*"
+        style={{ display: 'none' }}
+        onChange={handleFileChange}
+      />
+
       {/* Modal de Edición */}
       <Dialog open={editBarberoModal} onOpenChange={setEditBarberoModal}>
         <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
@@ -521,6 +577,44 @@ export const BarbersTab = ({ barbers, businessId }: BarbersTabProps) => {
             </Button>
           </div>
         </DialogContent>
+              </Dialog>
+
+      {/* Modal del Portafolio */}
+      <Dialog open={portfolioModal} onOpenChange={setPortfolioModal}>
+        <DialogContent className="sm:max-w-[800px] max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              Portafolio de {selectedBarberForPortfolio?.firstName} {selectedBarberForPortfolio?.lastName}
+            </DialogTitle>
+            <DialogDescription>
+              Galería de trabajos del barbero
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            {selectedBarberForPortfolio?.portfolioImages && selectedBarberForPortfolio.portfolioImages.length > 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {selectedBarberForPortfolio.portfolioImages.map((imageUrl, index) => (
+                  <div key={index} className="relative aspect-square">
+                    <img
+                      src={imageUrl}
+                      alt={`Trabajo ${index + 1}`}
+                      className="w-full h-full object-cover rounded-lg border"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = '/placeholder-image.jpg'; // Imagen de respaldo
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <Image className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+                <p className="text-gray-500">No hay imágenes en el portafolio</p>
+              </div>
+            )}
+          </div>
+        </DialogContent>
       </Dialog>
 
       <CardContent>
@@ -563,6 +657,10 @@ export const BarbersTab = ({ barbers, businessId }: BarbersTabProps) => {
                           <Star className="w-4 h-4 mr-1 fill-yellow-400 text-yellow-400" />
                           {barbero.ratingAverage || '0'} ({barbero.totalReviews || 0} reseñas)
                         </div>
+                        <div className="flex items-center">
+                          <Image className="w-4 h-4 mr-1 text-blue-600" />
+                          {barbero.portfolioImages?.length || 0} imágenes
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -572,6 +670,22 @@ export const BarbersTab = ({ barbers, businessId }: BarbersTabProps) => {
                     >
                       {barbero.isActive ? "Activo" : "Inactivo"}
                     </Badge>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => handleViewPortfolio(barbero)}
+                      title="Ver portafolio"
+                    >
+                      <Image className="w-4 h-4" />
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => handleUploadPortfolioImages(barbero)}
+                      title="Agregar imagen al portafolio"
+                    >
+                      <Upload className="w-4 h-4" />
+                    </Button>
                     <Button variant="outline" size="sm" onClick={() => handleEditBarber(barbero)}>
                       <Edit className="w-4 h-4" />
                     </Button>

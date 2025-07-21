@@ -131,6 +131,28 @@ class BusinessServices {
         const response = await apiClient.delete<{ message: string; success: boolean }>(`${this.businessEndpoint}/media/${imageId}`);
         return response.data;
     }
+
+    // Barber Portfolio methods
+    async uploadBarberPortfolioImages(barberId: string, images: File[]): Promise<{ message: string; success: boolean }> {
+        const formData = new FormData();
+        
+        // Agregar cada imagen al FormData
+        images.forEach((image) => {
+            formData.append('files', image);
+        });
+
+        const response = await apiClient.getInstance().post(
+            `${this.barbersEndpoint}/${barberId}/portfolio`,
+            formData,
+            {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            }
+        );
+        
+        return response.data;
+    }
 }
 
 export const businessServices = new BusinessServices();
