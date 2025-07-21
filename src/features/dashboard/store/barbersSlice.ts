@@ -1,12 +1,13 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import type { Barber, BarberCreateRequestModel, BarberDeleteResponseModel } from '../types/barber.type';
+import type { Barber, BarberCreateRequestModel, BarberUpdateRequestModel, BarberDeleteResponseModel } from '../types/barber.type';
 import businessServices from '../services/businessServices';
 
 interface BarbersState {
     barbers: Barber[];
     isLoading: boolean;
     isCreating: boolean;
+    isUpdating: boolean;
     error: string | null;
 }
 
@@ -14,6 +15,7 @@ const initialState: BarbersState = {
     barbers: [],
     isLoading: false,
     isCreating: false,
+    isUpdating: false,
     error: null,
 }
 
@@ -49,6 +51,22 @@ export const createBarber = createAsyncThunk<
         }
     }); 
 
+export const updateBarber = createAsyncThunk<
+    Barber,
+    { barberId: string; barberData: BarberUpdateRequestModel },
+    { rejectValue: string }
+>(
+    'barbers/updateBarber',
+    async ({ barberId, barberData }, { rejectWithValue }) => {
+        try {
+            const response = await businessServices.updateBarberById(barberId, barberData);
+            return response; // response ya ES el objeto Barber actualizado
+        }
+        catch (error: any) {
+            return rejectWithValue(error.response?.data?.message || 'Error al actualizar barbero');
+        }
+    });
+
 export const deleteBarberById = createAsyncThunk<
     BarberDeleteResponseModel,
     string,
@@ -74,6 +92,7 @@ export const barbersSlice = createSlice({
             state.error = null; 
             state.isLoading = false;
             state.isCreating = false;
+            state.isUpdating = false;
         },
     },
     extraReducers: (builder) => {
@@ -104,12 +123,28 @@ export const barbersSlice = createSlice({
                 state.isCreating = false;
                 state.error = action.payload as string || 'Error al crear barbero';   
             })
+            // Update Barber cases
+            .addCase(updateBarber.pending, (state) => {
+                state.isUpdating = true;
+                state.error = null;
+            })
+            .addCase(updateBarber.fulfilled, (state, action: PayloadAction<Barber>) => {
+                state.isUpdating = false;
+                const index = state.barbers.findIndex(barber => barber.id === action.payload.id);
+                if (index !== -1) {
+                    state.barbers[index] = action.payload;
+                }
+            })
+            .addCase(updateBarber.rejected, (state, action) => {
+                state.isUpdating = false;
+                state.error = action.payload as string || 'Error al actualizar barbero';
+            })
             // Delete Barber cases
             .addCase(deleteBarberById.pending, (state) => {
                 state.isLoading = true;
                 state.error = null;
             })
-            .addCase(deleteBarberById.fulfilled, (state, action) => {
+            .addCase(deleteBarberById.fulfilled, (state) => {
                 state.isLoading = false;
                 // No necesitamos actualizar el array aquí si se recarga después
             })
@@ -127,4 +162,5 @@ export default barbersSlice.reducer;
 export const selectBarbers = (state: { barbers: BarbersState }) => state.barbers.barbers;
 export const selectBarbersLoading = (state: { barbers: BarbersState }) => state.barbers.isLoading;
 export const selectBarbersCreating = (state: { barbers: BarbersState }) => state.barbers.isCreating;
+export const selectBarbersUpdating = (state: { barbers: BarbersState }) => state.barbers.isUpdating;
 export const selectBarbersError = (state: { barbers: BarbersState }) => state.barbers.error; 

@@ -10,7 +10,7 @@ export const useCreateBarber = (businessId: string) => {
     const handleCreateBarber = async (barberData: BarberCreateRequestModel) => {
         try {           
             const result = await dispatch(createBarber(barberData)).unwrap();
-            const barbersResult = await dispatch(getBarbersByBusinessId(businessId)).unwrap();
+            await dispatch(getBarbersByBusinessId(businessId)).unwrap();
             // El reducer ya agrega automáticamente el barbero a la lista
             // No necesitamos hacer una llamada adicional a getBarbersByBusinessId
                        

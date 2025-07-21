@@ -1,6 +1,6 @@
 import { apiClient } from '@/shared/utils/apiClient';
 import type { BusinessesResponseModel } from '../types/business.type';
-import type { BarberCreateRequestModel } from '../types/barber.type';
+import type { BarberCreateRequestModel, BarberUpdateRequestModel } from '../types/barber.type';
 import type { ServiceCreateRequest, ServiceCreateResponse } from '../types/services.type';
 
 import type { BusinessesDeleteResponseModel, BusinessUpdateRequestModel } from '../types/business.type';
@@ -41,6 +41,11 @@ class BusinessServices {
 
     async createBarber(barber: BarberCreateRequestModel): Promise<Barber> {
         const response = await apiClient.post<Barber>(`${this.barbersEndpoint}`, barber);
+        return response.data;
+    }
+
+    async updateBarberById(barberId: string, barber: BarberUpdateRequestModel): Promise<Barber> {
+        const response = await apiClient.put<Barber>(`${this.barbersEndpoint}/${barberId}`, barber);
         return response.data;
     }
 

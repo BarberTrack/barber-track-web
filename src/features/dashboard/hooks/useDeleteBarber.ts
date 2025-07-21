@@ -20,7 +20,7 @@ export const useDeleteBarber = (barberId: string, businessId: string) => {
         }
         try {
             const result = await dispatch(deleteBarberById(barberId)).unwrap();
-            const barbersResult = await dispatch(getBarbersByBusinessId(businessId));
+            await dispatch(getBarbersByBusinessId(businessId));
             ToastAlert.success(
                 "Barbero eliminado correctamente",
                 "Barbero eliminado"

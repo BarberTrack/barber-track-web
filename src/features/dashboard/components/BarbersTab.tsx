@@ -8,8 +8,9 @@ import { Label } from '../../../shared/components/shadcn/label';
 import { Textarea } from '../../../shared/components/shadcn/textarea';
 import { Switch } from '../../../shared/components/shadcn/switch';
 import { Plus, Edit, User, Star, Clock } from 'lucide-react';
-import type{ Barber, WorkSchedule, BarberCreateRequestModel } from '../types/barber.type';
+import type{ Barber, WorkSchedule, BarberCreateRequestModel, BarberUpdateRequestModel } from '../types/barber.type';
 import { useCreateBarber } from '../hooks/useCreateBarber';
+import { useUpdateBarber } from '../hooks/useUpdateBarber';
 import { DialogDelete } from '@/shared/components/DialogDelete';
 
 interface BarbersTabProps {
@@ -30,7 +31,10 @@ const defaultWorkSchedule: WorkSchedule = {
 export const BarbersTab = ({ barbers, businessId }: BarbersTabProps) => {
  
   const [addBarberoModal, setAddBarberoModal] = useState(false);
+  const [editBarberoModal, setEditBarberoModal] = useState(false);
+  const [selectedBarber, setSelectedBarber] = useState<Barber | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
   const [newBarbero, setNewBarbero] = useState<BarberCreateRequestModel>({
     businessId: businessId,
     firstName: '',
@@ -40,9 +44,20 @@ export const BarbersTab = ({ barbers, businessId }: BarbersTabProps) => {
     workSchedule: defaultWorkSchedule,
     yearsExperience: 0,
   });
+  const [editBarbero, setEditBarbero] = useState<BarberUpdateRequestModel>({
+    firstName: '',
+    lastName: '',
+    bio: '',
+    specialties: [],
+    workSchedule: defaultWorkSchedule,
+    yearsExperience: 0,
+    isActive: true,
+  });
   const [specialtyInput, setSpecialtyInput] = useState('');
+  const [editSpecialtyInput, setEditSpecialtyInput] = useState('');
 
   const { handleCreateBarber } = useCreateBarber(businessId);
+  const { handleUpdateBarber } = useUpdateBarber(businessId);
     
   const handleAddSpecialty = () => {
     if (specialtyInput.trim() && !newBarbero.specialties.includes(specialtyInput.trim())) {
@@ -61,6 +76,23 @@ export const BarbersTab = ({ barbers, businessId }: BarbersTabProps) => {
     });
   };
 
+  const handleAddEditSpecialty = () => {
+    if (editSpecialtyInput.trim() && !editBarbero.specialties.includes(editSpecialtyInput.trim())) {
+      setEditBarbero({
+        ...editBarbero,
+        specialties: [...editBarbero.specialties, editSpecialtyInput.trim()]
+      });
+      setEditSpecialtyInput('');
+    }
+  };
+
+  const handleRemoveEditSpecialty = (index: number) => {
+    setEditBarbero({
+      ...editBarbero,
+      specialties: editBarbero.specialties.filter((_, i) => i !== index)
+    });
+  };
+
   const handleWorkScheduleChange = (day: keyof WorkSchedule, field: 'start' | 'end', value: string) => {
     setNewBarbero({
       ...newBarbero,
@@ -74,11 +106,36 @@ export const BarbersTab = ({ barbers, businessId }: BarbersTabProps) => {
     });
   };
 
+  const handleEditWorkScheduleChange = (day: keyof WorkSchedule, field: 'start' | 'end', value: string) => {
+    setEditBarbero({
+      ...editBarbero,
+      workSchedule: {
+        ...editBarbero.workSchedule,
+        [day]: {
+          ...editBarbero.workSchedule[day],
+          [field]: value
+        }
+      }
+    });
+  };
+
   const handleDayToggle = (day: keyof WorkSchedule, isClosed: boolean) => {
     setNewBarbero({
       ...newBarbero,
       workSchedule: {
         ...newBarbero.workSchedule,
+        [day]: isClosed 
+          ? { off: true }
+          : { start: "09:00", end: "18:00" }
+      }
+    });
+  };
+
+  const handleEditDayToggle = (day: keyof WorkSchedule, isClosed: boolean) => {
+    setEditBarbero({
+      ...editBarbero,
+      workSchedule: {
+        ...editBarbero.workSchedule,
         [day]: isClosed 
           ? { off: true }
           : { start: "09:00", end: "18:00" }
@@ -110,6 +167,47 @@ export const BarbersTab = ({ barbers, businessId }: BarbersTabProps) => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleEditSubmit = async () => {
+    if (!selectedBarber || !editBarbero.firstName.trim() || !editBarbero.lastName.trim()) {
+      return;
+    }
+    
+    setIsUpdating(true);
+    try {
+      await handleUpdateBarber(selectedBarber.id, editBarbero);
+      setEditBarberoModal(false);
+      setSelectedBarber(null);
+      setEditBarbero({
+        firstName: '',
+        lastName: '',
+        bio: '',
+        specialties: [],
+        workSchedule: defaultWorkSchedule,
+        yearsExperience: 0,
+        isActive: true,
+      });
+      setEditSpecialtyInput('');
+    } catch (error) {
+     
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleEditBarber = (barber: Barber) => {
+    setSelectedBarber(barber);
+    setEditBarbero({
+      firstName: barber.firstName,
+      lastName: barber.lastName,
+      bio: barber.bio,
+      specialties: [...barber.specialties],
+      workSchedule: { ...barber.workSchedule },
+      yearsExperience: barber.yearsExperience,
+      isActive: barber.isActive,
+    });
+    setEditBarberoModal(true);
   };
 
   const dayNames = {
@@ -274,6 +372,157 @@ export const BarbersTab = ({ barbers, businessId }: BarbersTabProps) => {
           </DialogContent>
         </Dialog>
       </CardHeader>
+
+      {/* Modal de Edición */}
+      <Dialog open={editBarberoModal} onOpenChange={setEditBarberoModal}>
+        <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Editar Barbero</DialogTitle>
+            <DialogDescription>Modifica la información del barbero</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-6 py-4">
+            {/* Información Personal */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Información Personal</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="editFirstName">Nombre *</Label>
+                  <Input
+                    id="editFirstName"
+                    value={editBarbero.firstName}
+                    onChange={(e) => setEditBarbero({ ...editBarbero, firstName: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="editLastName">Apellido *</Label>
+                  <Input
+                    id="editLastName"
+                    value={editBarbero.lastName}
+                    onChange={(e) => setEditBarbero({ ...editBarbero, lastName: e.target.value })}
+                    required
+                  />
+                </div>
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="editBio">Biografía</Label>
+                <Textarea
+                  id="editBio"
+                  value={editBarbero.bio}
+                  onChange={(e) => setEditBarbero({ ...editBarbero, bio: e.target.value })}
+                  placeholder="Descripción del barbero y sus especialidades"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="editExperience">Años de Experiencia</Label>
+                <Input
+                  id="editExperience"
+                  type="number"
+                  min="0"
+                  value={editBarbero.yearsExperience}
+                  onChange={(e) =>
+                    setEditBarbero({ ...editBarbero, yearsExperience: Number.parseInt(e.target.value) || 0 })
+                  }
+                />
+              </div>
+              <div className="grid gap-2">
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="editIsActive">Estado Activo</Label>
+                  <Switch
+                    id="editIsActive"
+                    checked={editBarbero.isActive}
+                    onCheckedChange={(checked) => setEditBarbero({ ...editBarbero, isActive: checked })}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Especialidades */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Especialidades</h3>
+              <div className="flex gap-2">
+                <Input
+                  value={editSpecialtyInput}
+                  onChange={(e) => setEditSpecialtyInput(e.target.value)}
+                  placeholder="Agregar especialidad"
+                  onKeyPress={(e) => e.key === 'Enter' && handleAddEditSpecialty()}
+                />
+                <Button type="button" onClick={handleAddEditSpecialty} variant="outline">
+                  Agregar
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {editBarbero.specialties.map((specialty, index) => (
+                  <Badge
+                    key={index}
+                    variant="secondary"
+                    className="cursor-pointer"
+                    onClick={() => handleRemoveEditSpecialty(index)}
+                  >
+                    {specialty} ×
+                  </Badge>
+                ))}
+              </div>
+            </div>
+
+            {/* Horario de Trabajo */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <Clock className="w-5 h-5" />
+                Horario de Trabajo
+              </h3>
+              <div className="space-y-3">
+                {Object.entries(editBarbero.workSchedule).map(([day, schedule]) => (
+                  <div key={day} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <span className="w-20 text-sm font-medium">
+                        {dayNames[day as keyof typeof dayNames]}
+                      </span>
+                      <Switch
+                        checked={!('off' in schedule)}
+                        onCheckedChange={(checked) => handleEditDayToggle(day as keyof WorkSchedule, !checked)}
+                      />
+                    </div>
+                    {!('off' in schedule) && (
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="time"
+                          value={schedule.start}
+                          onChange={(e) => handleEditWorkScheduleChange(day as keyof WorkSchedule, 'start', e.target.value)}
+                          className="w-24"
+                        />
+                        <span>-</span>
+                        <Input
+                          type="time"
+                          value={schedule.end}
+                          onChange={(e) => handleEditWorkScheduleChange(day as keyof WorkSchedule, 'end', e.target.value)}
+                          className="w-24"
+                        />
+                      </div>
+                    )}
+                    {('off' in schedule) && (
+                      <span className="text-gray-500 text-sm">Cerrado</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setEditBarberoModal(false)} disabled={isUpdating}>
+              Cancelar
+            </Button>
+            <Button 
+              onClick={handleEditSubmit} 
+              className="bg-blue-600 hover:bg-blue-700"
+              disabled={isUpdating || !editBarbero.firstName.trim() || !editBarbero.lastName.trim()}
+            >
+              {isUpdating ? 'Actualizando...' : 'Actualizar Barbero'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <CardContent>
         <div className="grid gap-4">
           {!barbers || !Array.isArray(barbers) || barbers.length === 0 ? (
@@ -323,7 +572,7 @@ export const BarbersTab = ({ barbers, businessId }: BarbersTabProps) => {
                     >
                       {barbero.isActive ? "Activo" : "Inactivo"}
                     </Badge>
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" onClick={() => handleEditBarber(barbero)}>
                       <Edit className="w-4 h-4" />
                     </Button>
                     <DialogDelete type="barbero" typeId={barbero.id} businessId={businessId} />

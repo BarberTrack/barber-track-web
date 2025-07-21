@@ -1,50 +1,49 @@
 // Business slice exports
 export {
-  getBusinessById,
-  deleteBusinessById,
-  updateBusinessById,
-  clearBusiness,
-  selectBusiness,
-  selectBusinessLoading,
-  selectBusinessError,
+    getBusinessById,
+    updateBusinessById,
+    deleteBusinessById,
+    selectBusiness,
+    selectBusinessLoading,
+    selectBusinessError
 } from './businessSlice';
 
-// Barbers slice exports
+// Barbers slice exports  
 export {
-  getBarbersByBusinessId,
-  createBarber,
-  deleteBarberById,
-  clearBarbers,
-  selectBarbers,
-  selectBarbersLoading,
-  selectBarbersCreating,
-  selectBarbersError,
+    getBarbersByBusinessId,
+    createBarber,
+    updateBarber,
+    deleteBarberById,
+    selectBarbers,
+    selectBarbersLoading,
+    selectBarbersCreating,
+    selectBarbersUpdating,
+    selectBarbersError
 } from './barbersSlice';
 
 // Services slice exports
 export {
-  getServicesByBusinessId,
-  createService,
-  clearServices,
-  selectServices,
-  selectServicesLoading,
-  selectServicesCreating,
-  selectServicesError,
+    getServicesByBusinessId,
+    createService,
+    deleteServiceById,
+    selectServices,
+    selectServicesLoading,
+    selectServicesCreating,
+    selectServicesError
 } from './servicesSlice';
 
 // Reviews slice exports
 export {
-  getReviewsByBusinessId,
-  getReviewsWithFilters,
-  clearReviews,
-  setFilters,
-  setCurrentPage,
-  selectReviews,
-  selectReviewsLoading,
-  selectReviewsError,
-  selectCurrentPage,
-  selectTotalReviews,
-  selectReviewsFilters,
+    getReviewsByBusinessId,
+    getReviewsWithFilters,
+    setFilters,
+    setCurrentPage,
+    selectReviews,
+    selectReviewsLoading,
+    selectReviewsError,
+    selectCurrentPage,
+    selectTotalReviews,
+    selectReviewsFilters
 } from './reviewsSlice';
 
 // Re-export default reducers
