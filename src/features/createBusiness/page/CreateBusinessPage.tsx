@@ -77,17 +77,21 @@ export const CreateBusinessPage = () => {
 
   const handleLocationSelect = useCallback(async (lat: number, lng: number) => {
     try {
+      // Asegurar que las coordenadas sean valores flotantes precisos
+      const latitude = parseFloat(lat.toFixed(8));
+      const longitude = parseFloat(lng.toFixed(8));
+
       // Usar Nominatim (OpenStreetMap) para reverse geocoding
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`,
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
       );
       const data = await response.json();
 
-      const address = data.display_name || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+      const address = data.display_name || `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
 
       const newLocation: Location = {
-        latitude: lat,
-        longitude: lng,
+        latitude: latitude,
+        longitude: longitude,
         address: address,
       };
 
@@ -99,10 +103,12 @@ export const CreateBusinessPage = () => {
     } catch (error) {
       console.error("Error obteniendo la dirección:", error);
       // Si falla el geocoding, usar las coordenadas como dirección
+      const latitude = parseFloat(lat.toFixed(8));
+      const longitude = parseFloat(lng.toFixed(8));
       const newLocation: Location = {
-        latitude: lat,
-        longitude: lng,
-        address: `${lat.toFixed(6)}, ${lng.toFixed(6)}`,
+        latitude: latitude,
+        longitude: longitude,
+        address: `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`,
       };
       setBusinessData((prev) => ({
         ...prev,
@@ -177,13 +183,13 @@ export const CreateBusinessPage = () => {
       return;
     }
 
-    // Construir datos para enviar
+    // Construir datos para enviar, asegurando que latitude y longitude sean flotantes
     const createBusinessData = {
       name: businessData.name.trim(),
       description: businessData.description.trim(),
       address: businessData.location.address,
-      latitude: businessData.location.latitude,
-      longitude: businessData.location.longitude,
+      latitude: parseFloat(businessData.location.latitude.toString()),
+      longitude: parseFloat(businessData.location.longitude.toString()),
       phone: businessData.phone.trim(),
       email: businessData.email.trim(),
       businessHours: businessData.businessHours,
@@ -409,8 +415,8 @@ export const CreateBusinessPage = () => {
                     name: businessData.name,
                     description: businessData.description,
                     address: businessData.location?.address || "",
-                    latitude: businessData.location?.latitude || null,
-                    longitude: businessData.location?.longitude || null,
+                    latitude: businessData.location ? parseFloat(businessData.location.latitude.toString()) : null,
+                    longitude: businessData.location ? parseFloat(businessData.location.longitude.toString()) : null,
                     phone: businessData.phone,
                     email: businessData.email,
                     businessHours: businessData.businessHours,

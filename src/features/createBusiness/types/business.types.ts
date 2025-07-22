@@ -20,8 +20,8 @@ export interface CancellationPolicy {
 }
 
 export interface Location {
-  latitude: number;
-  longitude: number;
+  latitude: number; // Valor flotante para latitud
+  longitude: number; // Valor flotante para longitud
   address: string;
 }
 
@@ -29,11 +29,12 @@ export interface CreateBusinessData {
   name: string;
   description: string;
   address: string;
+  latitude: number; // Valor flotante para latitud
+  longitude: number; // Valor flotante para longitud
   phone: string;
   email: string;
   businessHours: BusinessHours;
   cancellationPolicy: CancellationPolicy;
-  location?: Location;
 }
 
 export interface CreateBusinessFormData {
@@ -59,6 +60,8 @@ export interface CreateBusinessResponse {
     name: string;
     description: string;
     address: string;
+    latitude: number; // Valor flotante para latitud
+    longitude: number; // Valor flotante para longitud
     phone: string;
     email: string;
     businessHours: BusinessHours;
