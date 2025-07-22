@@ -60,3 +60,22 @@ export interface BarberDeleteResponseModel {
     deleted: boolean;
 }
 
+// Nuevos tipos para el portafolio del barbero
+export interface BarberPortfolioImage {
+    id: string;
+    url: string;
+}
+
+export interface BarberPortfolioResponse {
+    success: boolean;
+    message: string;
+    data: {
+        portfolio: BarberPortfolioImage[];
+    };
+}
+
+export interface DeletePortfolioImageResponse {
+    success: boolean;
+    message: string;
+}
+

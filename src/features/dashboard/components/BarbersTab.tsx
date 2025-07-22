@@ -7,10 +7,12 @@ import { Input } from '../../../shared/components/shadcn/input';
 import { Label } from '../../../shared/components/shadcn/label';
 import { Textarea } from '../../../shared/components/shadcn/textarea';
 import { Switch } from '../../../shared/components/shadcn/switch';
-import { Plus, Edit, User, Star, Clock, Upload, Image } from 'lucide-react';
+import { Plus, Edit, User, Star, Clock, Upload, Image, Trash2 } from 'lucide-react';
 import type{ Barber, WorkSchedule, BarberCreateRequestModel, BarberUpdateRequestModel } from '../types/barber.type';
 import { useCreateBarber } from '../hooks/useCreateBarber';
 import { useUpdateBarber } from '../hooks/useUpdateBarber';
+import { useBarberPortfolio } from '../hooks/useBarberPortfolio';
+import { useDeletePortfolioImage } from '../hooks/useDeletePortfolioImage';
 import { DialogDelete } from '@/shared/components/DialogDelete';
 import businessServices from '../services/businessServices';
 import { ToastAlert } from '@/shared/components/ToastAlert';
@@ -64,6 +66,8 @@ export const BarbersTab = ({ barbers, businessId }: BarbersTabProps) => {
 
   const { handleCreateBarber } = useCreateBarber(businessId);
   const { handleUpdateBarber } = useUpdateBarber(businessId);
+  const { portfolioImages, isLoading: isLoadingPortfolio, fetchPortfolio, setPortfolioImages } = useBarberPortfolio(selectedBarberForPortfolio?.id || null);
+  const { deletePortfolioImage, isDeleting } = useDeletePortfolioImage();
     
   const handleAddSpecialty = () => {
     if (specialtyInput.trim() && !newBarbero.specialties.includes(specialtyInput.trim())) {
@@ -235,8 +239,8 @@ export const BarbersTab = ({ barbers, businessId }: BarbersTabProps) => {
         "Portafolio actualizado"
       );
       
-      // Aquí podrías refrescar los datos del barbero si tienes una función para ello
-      window.location.reload(); // Temporal - idealmente deberías usar un refetch más elegante
+      // Refrescar el portafolio
+      await fetchPortfolio(selectedBarberForPortfolio.id);
     } catch (error: any) {
       console.error('Error al subir imágenes del portafolio:', error);
       ToastAlert.error(
@@ -254,6 +258,14 @@ export const BarbersTab = ({ barbers, businessId }: BarbersTabProps) => {
   const handleViewPortfolio = (barber: Barber) => {
     setSelectedBarberForPortfolio(barber);
     setPortfolioModal(true);
+  };
+
+  const handleDeletePortfolioImage = async (imageId: string) => {
+    const success = await deletePortfolioImage(imageId);
+    if (success && selectedBarberForPortfolio) {
+      // Remover la imagen del estado local
+      setPortfolioImages(prev => prev.filter(img => img.id !== imageId));
+    }
   };
 
   const dayNames = {
@@ -591,19 +603,36 @@ export const BarbersTab = ({ barbers, businessId }: BarbersTabProps) => {
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
-            {selectedBarberForPortfolio?.portfolioImages && selectedBarberForPortfolio.portfolioImages.length > 0 ? (
+            {isLoadingPortfolio ? (
+              <div className="text-center py-8">
+                <p className="text-gray-500">Cargando portafolio...</p>
+              </div>
+            ) : portfolioImages && portfolioImages.length > 0 ? (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {selectedBarberForPortfolio.portfolioImages.map((imageUrl, index) => (
-                  <div key={index} className="relative aspect-square">
-                    <img
-                      src={imageUrl}
-                      alt={`Trabajo ${index + 1}`}
-                      className="w-full h-full object-cover rounded-lg border"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = '/placeholder-image.jpg'; // Imagen de respaldo
-                      }}
-                    />
+                {portfolioImages.map((image) => (
+                  <div key={image.id} className="space-y-2">
+                    <div className="relative aspect-square">
+                      <img
+                        src={image.url}
+                        alt={`Trabajo del portafolio`}
+                        className="w-full h-full object-cover rounded-lg border"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = '/placeholder-image.jpg'; // Imagen de respaldo
+                        }}
+                      />
+                    </div>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleDeletePortfolioImage(image.id)}
+                      disabled={isDeleting}
+                      className="w-full"
+                      title="Eliminar imagen"
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Eliminar
+                    </Button>
                   </div>
                 ))}
               </div>

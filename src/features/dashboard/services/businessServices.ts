@@ -4,7 +4,7 @@ import type { BarberCreateRequestModel, BarberUpdateRequestModel } from '../type
 import type { ServiceCreateRequest, ServiceCreateResponse, ServiceUpdateRequest, ServiceUpdateResponse } from '../types/services.type';
 
 import type { BusinessesDeleteResponseModel, BusinessUpdateRequestModel } from '../types/business.type';
-import type { BarberDeleteResponseModel } from '../types/barber.type';
+import type { BarberDeleteResponseModel, BarberPortfolioResponse, DeletePortfolioImageResponse } from '../types/barber.type';
 import type { ServiceDeleteResponseModel } from '../types/services.type';
 import type { Business } from '../types/business.type';
 import type { Services } from '../types/services.type';
@@ -151,6 +151,16 @@ class BusinessServices {
             }
         );
         
+        return response.data;
+    }
+
+    async getBarberPortfolio(barberId: string): Promise<BarberPortfolioResponse> {
+        const response = await apiClient.get<BarberPortfolioResponse>(`${this.barbersEndpoint}/${barberId}/portfolio`);
+        return response.data;
+    }
+
+    async deletePortfolioImage(imageId: string): Promise<DeletePortfolioImageResponse> {
+        const response = await apiClient.delete<DeletePortfolioImageResponse>(`${this.businessEndpoint}/media/${imageId}`);
         return response.data;
     }
 }
