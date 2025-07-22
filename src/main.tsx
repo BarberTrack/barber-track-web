@@ -15,6 +15,7 @@ import { DashboardPage } from './features/dashboard/pages/DashboardPage';
 import { CreateBusinessPage } from './features/createBusiness/page/CreateBusinessPage';
 import { Toaster } from './shared/components/shadcn/sonner';
 import { AppointmentPage } from './features/appointments/pages/AppointmentPage';
+import { AnalyticsPage } from './features/analytics/page/AnalyticsPage';
 
 configureApiClient();
 
@@ -38,6 +39,10 @@ const router = createBrowserRouter([
   {
     path: "/appointments/:businessId",
     element: <AppointmentPage/>
+  },
+  {
+    path: "/analytics/:businessId",
+    element: <AnalyticsPage/>
   },
 
   

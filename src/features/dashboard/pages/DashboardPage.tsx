@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router';
 import { useDashboardData } from '../hooks/useDashboardData';
 import { Button } from '../../../shared/components/shadcn/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../shared/components/shadcn/tabs';
-import { ArrowLeft, Star, MapPin, Clock, User, Scissors, MessageSquare, ImageIcon, Calendar } from 'lucide-react';
+import { ArrowLeft, Star, MapPin, Clock, User, Scissors, MessageSquare, ImageIcon, Calendar, BarChart3 } from 'lucide-react';
 import { 
   BusinessInfoTab, 
   BusinessHoursTab, 
@@ -93,6 +93,10 @@ export const DashboardPage = () => {
     navigate(`/appointments/${businessId}`);
   }
 
+  const navigateToAnalytics = () => {
+    navigate(`/analytics/${businessId}`);
+  }
+
   return (
     <div className="min-h-screen ">
       <div className="shadow-sm border-b">
@@ -115,10 +119,14 @@ export const DashboardPage = () => {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex justify-end mb-4">
-        <Button onClick={navigateToAppointments}>
-              <Calendar className="w-6 h-6 mr-2" />
-              Ver citas
-            </Button>
+          <Button onClick={navigateToAppointments} className="mr-2">
+            <Calendar className="w-6 h-6 mr-2" />
+            Ver citas
+          </Button>
+          <Button onClick={navigateToAnalytics}>
+            <BarChart3 className="w-6 h-6 mr-2" />
+            Ver analíticas
+          </Button>
         </div>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-6 lg:w-auto lg:grid-cols-6">
