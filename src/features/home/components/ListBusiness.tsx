@@ -1,7 +1,6 @@
-import { Plus, Star, Phone, Mail, MapPin, Clock } from "lucide-react"
+import { Star, Phone, Mail, MapPin, Clock } from "lucide-react"
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/shared/components/shadcn/card'
-import { Button } from '@/shared/components/shadcn/button'
 import { Badge } from '@/shared/components/shadcn/badge'
 import { useBusiness } from '../hooks/useBusiness'
 import { useNavigate } from 'react-router'

@@ -35,9 +35,9 @@ export const useBarberPortfolio = (barberId: string | null) => {
             
             if (response && response.data && Array.isArray(response.data.portfolio)) {
                 portfolioData = response.data.portfolio;
-            } else if (response && Array.isArray(response.portfolio)) {
+            } else if (response && response.data && Array.isArray(response.data)) {
                 // Fallback si la estructura es diferente
-                portfolioData = response.portfolio;
+                portfolioData = response.data;
             }
             
             setPortfolioImages(portfolioData);

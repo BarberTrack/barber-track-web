@@ -1,13 +1,12 @@
 import { useEffect } from 'react';
 import { useParams } from 'react-router';
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/shadcn/card';
+import { Card, CardContent } from '@/shared/components/shadcn/card';
 import { Button } from '@/shared/components/shadcn/button';
-import { Calendar, Users, AlertCircle, Loader2 } from 'lucide-react';
+import { Calendar, AlertCircle, Loader2 } from 'lucide-react';
 import { useAppointments } from '../hooks/useAppointments';
 import { 
   AppointmentsList, 
-  AppointmentFilters, 
-  AppointmentStats 
+  AppointmentFilters
 } from '../components';
 import { ToastAlert } from '@/shared/components/ToastAlert';
 
@@ -16,11 +15,8 @@ export const AppointmentPage = () => {
 
   const {
     appointments,
-    statusStats,
-    pagination,
     isLoading,
     error,
-    filters,
     reloadAppointments,
     clearAppointmentError,
   } = useAppointments(businessId);

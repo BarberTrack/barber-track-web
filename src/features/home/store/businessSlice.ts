@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import type { BusinessesResponseModel, Business } from '../types/business.types';
+import type { Business } from '../types/business.types';
 import businessServices from '../services/businessServices';
 
 interface BusinessState {

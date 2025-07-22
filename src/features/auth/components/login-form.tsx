@@ -12,7 +12,7 @@ export function LoginForm({
   ...props
 }: React.ComponentProps<"div">) {
   const navigate = useNavigate();
-  const { login, isLoading, error, isAuthenticated, clearAuthError } = useAuth();
+  const { login, isLoading, isAuthenticated, clearAuthError } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: ''

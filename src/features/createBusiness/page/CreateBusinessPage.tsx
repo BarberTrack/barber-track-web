@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/shadcn/card";
 import { Button } from "@/shared/components/shadcn/button";
@@ -23,7 +23,7 @@ const defaultBusinessHours: BusinessHours = {
 };
 
 export const CreateBusinessPage = () => {
-  const { createBusiness, isLoading, error, success, clearError, clearSuccess, resetState } = useCreateBusiness();
+  const { createBusiness, isLoading, error, success, clearError, clearSuccess } = useCreateBusiness();
   const navigate = useNavigate();
 
   const [businessData, setBusinessData] = useState<CreateBusinessFormData>({

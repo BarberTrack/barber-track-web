@@ -18,7 +18,7 @@ export const useDeleteBusiness = (businessId:string) =>{
             return;
         }
         try {
-            const result = await dispatch(deleteBusinessById(businessId)).unwrap();
+            await dispatch(deleteBusinessById(businessId)).unwrap();
             navigate('/home');
         }
         catch (error) {
