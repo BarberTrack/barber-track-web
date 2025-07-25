@@ -94,32 +94,56 @@ export default function BusinessHoursSelector({ businessHours, onChange }: Busin
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {daysOfWeek.map(({ key, label }) => {
         const dayHours = businessHours[key];
         const isClosed = dayHours?.closed || false;
 
         return (
-          <div key={key} className="flex items-center justify-between p-3 border rounded-lg">
-            <div className="flex items-center space-x-4 flex-1">
-              <div className="w-20">
-                <Label className="font-medium">{label}</Label>
+          <div key={key} className="p-3 border rounded-lg space-y-3">
+            {/* Fila superior: Día y Switch */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="min-w-0 flex-shrink-0">
+                  <Label className="font-medium text-sm sm:text-base">{label}</Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Switch 
+                    checked={!isClosed} 
+                    onCheckedChange={(checked) => handleDayToggle(key, !checked)} 
+                  />
+                  <Label className="text-xs sm:text-sm text-gray-600 whitespace-nowrap">
+                    {isClosed ? "Cerrado" : "Abierto"}
+                  </Label>
+                </div>
               </div>
 
-              <div className="flex items-center space-x-2">
-                <Switch checked={!isClosed} onCheckedChange={(checked) => handleDayToggle(key, !checked)} />
-                <Label className="text-sm text-gray-600">{isClosed ? "Cerrado" : "Abierto"}</Label>
-              </div>
-
+              {/* Botón "Copiar a todos" - solo visible en desktop cuando está abierto */}
               {!isClosed && (
-                <div className="flex items-center space-x-2">
-                  <div>
-                    <Label className="text-xs text-gray-500">Apertura</Label>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={() => copyToAllDays(key)} 
+                  className="hidden sm:flex text-xs whitespace-nowrap"
+                >
+                  Copiar a todos
+                </Button>
+              )}
+            </div>
+
+            {/* Fila inferior: Horarios (solo si está abierto) */}
+            {!isClosed && (
+              <div className="space-y-3">
+                {/* Selectores de tiempo */}
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                  {/* Selector de apertura */}
+                  <div className="flex-1 min-w-0">
+                    <Label className="text-xs text-gray-500 block mb-1">Apertura</Label>
                     <Select
                       value={dayHours?.open || "09:00"}
                       onValueChange={(value) => handleTimeChange(key, "open", value)}
                     >
-                      <SelectTrigger className="w-32 h-8 text-sm">
+                      <SelectTrigger className="w-full sm:w-36 h-9 text-sm">
                         <SelectValue>{formatTimeDisplay(dayHours?.open || "09:00")}</SelectValue>
                       </SelectTrigger>
                       <SelectContent>
@@ -131,14 +155,20 @@ export default function BusinessHoursSelector({ businessHours, onChange }: Busin
                       </SelectContent>
                     </Select>
                   </div>
-                  <span className="text-gray-400">-</span>
-                  <div>
-                    <Label className="text-xs text-gray-500">Cierre</Label>
+
+                  {/* Separador */}
+                  <div className="hidden sm:flex items-center justify-center px-2">
+                    <span className="text-gray-400 text-sm">-</span>
+                  </div>
+
+                  {/* Selector de cierre */}
+                  <div className="flex-1 min-w-0">
+                    <Label className="text-xs text-gray-500 block mb-1">Cierre</Label>
                     <Select
                       value={dayHours?.close || "18:00"}
                       onValueChange={(value) => handleTimeChange(key, "close", value)}
                     >
-                      <SelectTrigger className="w-32 h-8 text-sm">
+                      <SelectTrigger className="w-full sm:w-36 h-9 text-sm">
                         <SelectValue>{formatTimeDisplay(dayHours?.close || "18:00")}</SelectValue>
                       </SelectTrigger>
                       <SelectContent>
@@ -151,13 +181,19 @@ export default function BusinessHoursSelector({ businessHours, onChange }: Busin
                     </Select>
                   </div>
                 </div>
-              )}
-            </div>
 
-            {!isClosed && (
-              <Button size="sm" variant="outline" onClick={() => copyToAllDays(key)} className="ml-2 text-xs">
-                Copiar a todos
-              </Button>
+                {/* Botón "Copiar a todos" - solo visible en móvil */}
+                <div className="sm:hidden">
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    onClick={() => copyToAllDays(key)} 
+                    className="w-full text-xs"
+                  >
+                    Copiar a todos los días
+                  </Button>
+                </div>
+              </div>
             )}
           </div>
         );

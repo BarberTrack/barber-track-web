@@ -25,6 +25,8 @@ export const DashboardPage = () => {
     hasError,
     errors
   } = useDashboardData(businessId || '');
+
+
   
   const [activeTab, setActiveTab] = useState("info");
 
