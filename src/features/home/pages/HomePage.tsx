@@ -5,7 +5,7 @@ import { Plus } from "lucide-react"
 export const HomePage = () => {
 
   return (
-    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 h-full">
       <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-4 items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold text-gray-100 mb-2">Mis Barberías</h2>
