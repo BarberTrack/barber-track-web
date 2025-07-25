@@ -1,5 +1,4 @@
 import { apiClient } from '@/shared/utils/apiClient';
-import type { BusinessesResponseModel } from '../types/business.type';
 import type { BarberCreateRequestModel, BarberUpdateRequestModel } from '../types/barber.type';
 import type { ServiceCreateRequest, ServiceCreateResponse, ServiceUpdateRequest, ServiceUpdateResponse } from '../types/services.type';
 

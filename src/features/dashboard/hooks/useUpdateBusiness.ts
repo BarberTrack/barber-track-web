@@ -22,7 +22,7 @@ export const useUpdateBusiness = () => {
       }
       try {
         // console.log('🔄 Actualizando business:', { businessId, business });
-        const result = await dispatch(updateBusinessById({ businessId, business })).unwrap();
+        await dispatch(updateBusinessById({ businessId, business })).unwrap();
         ToastAlert.success("Negocio actualizado correctamente", "Datos guardados");
 
       } catch (error) {
