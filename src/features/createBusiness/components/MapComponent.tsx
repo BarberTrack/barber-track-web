@@ -1,7 +1,13 @@
-import { useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet";
 import * as L from "leaflet";
 import type { Location } from "../types/business.types";
+
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
+  iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
+  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+});
 
 interface MapComponentProps {
   onLocationSelect: (lat: number, lng: number) => void;
@@ -19,14 +25,15 @@ function MapClickHandler({ onLocationSelect }: { onLocationSelect: (lat: number,
 }
 
 export default function MapComponent({ onLocationSelect, selectedLocation }: MapComponentProps) {
-  useEffect(() => {
-    // Configuramos los iconos sólo una vez en cliente
-    L.Icon.Default.mergeOptions({
-      iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
-      iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
-      shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-    });
-  }, []);
+  const customIcon = new L.Icon({
+    iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
+    iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
+    shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+  });
 
   return (
     <MapContainer
@@ -43,7 +50,10 @@ export default function MapComponent({ onLocationSelect, selectedLocation }: Map
       <MapClickHandler onLocationSelect={onLocationSelect} />
 
       {selectedLocation && (
-        <Marker position={[selectedLocation.latitude , selectedLocation.longitude ]}>
+        <Marker 
+          position={[selectedLocation.latitude, selectedLocation.longitude]}
+          icon={customIcon}
+        >
           <Popup>
             <div className="text-sm">
               <strong>Ubicación Seleccionada</strong>
@@ -59,4 +69,4 @@ export default function MapComponent({ onLocationSelect, selectedLocation }: Map
       )}
     </MapContainer>
   );
-} 
+}

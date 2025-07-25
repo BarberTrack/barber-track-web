@@ -61,6 +61,8 @@ export const BarbersTab = ({ barbers, businessId }: BarbersTabProps) => {
   const [editSpecialtyInput, setEditSpecialtyInput] = useState('');
   const [portfolioModal, setPortfolioModal] = useState(false);
   const [selectedBarberForPortfolio, setSelectedBarberForPortfolio] = useState<Barber | null>(null);
+  const [scheduleModal, setScheduleModal] = useState(false);
+  const [selectedBarberForSchedule, setSelectedBarberForSchedule] = useState<Barber | null>(null);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -258,6 +260,11 @@ export const BarbersTab = ({ barbers, businessId }: BarbersTabProps) => {
   const handleViewPortfolio = (barber: Barber) => {
     setSelectedBarberForPortfolio(barber);
     setPortfolioModal(true);
+  };
+
+  const handleViewSchedule = (barber: Barber) => {
+    setSelectedBarberForSchedule(barber);
+    setScheduleModal(true);
   };
 
   const handleDeletePortfolioImage = async (imageId: string) => {
@@ -646,6 +653,45 @@ export const BarbersTab = ({ barbers, businessId }: BarbersTabProps) => {
         </DialogContent>
       </Dialog>
 
+      {/* Modal de Horarios */}
+      <Dialog open={scheduleModal} onOpenChange={setScheduleModal}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Clock className="w-5 h-5" />
+              Horarios de {selectedBarberForSchedule?.firstName} {selectedBarberForSchedule?.lastName}
+            </DialogTitle>
+            <DialogDescription>
+              Horario de trabajo del barbero
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            {selectedBarberForSchedule && (
+              <div className="space-y-3">
+                {Object.entries(selectedBarberForSchedule.workSchedule).map(([day, schedule]) => (
+                  <div key={day} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <span className="w-24 text-sm font-medium">
+                        {dayNames[day as keyof typeof dayNames]}
+                      </span>
+                    </div>
+                    <div className="text-sm">
+                      {('off' in schedule) ? (
+                        <span className="text-gray-500 font-medium">Cerrado</span>
+                      ) : (
+                        <span className="text-gray-700 font-medium">
+                          {schedule.start} - {schedule.end}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <CardContent>
         <div className="grid gap-4">
           {!barbers || !Array.isArray(barbers) || barbers.length === 0 ? (
@@ -699,6 +745,14 @@ export const BarbersTab = ({ barbers, businessId }: BarbersTabProps) => {
                     >
                       {barbero.isActive ? "Activo" : "Inactivo"}
                     </Badge>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => handleViewSchedule(barbero)}
+                      title="Ver horarios"
+                    >
+                      <Clock className="w-4 h-4" />
+                    </Button>
                     <Button 
                       variant="outline" 
                       size="sm" 
