@@ -10,6 +10,7 @@ import BusinessHoursSelector from "../components/BusinessHoursSelector";
 import MapComponent from "../components/MapComponent";
 import { useCreateBusiness } from "../hooks/useCreateBusiness";
 import { ToastAlert } from "@/shared/components/ToastAlert";
+import { Navbar } from "@/shared/components/Navbar";
 import type { BusinessHours, Location, CreateBusinessFormData } from "../types/business.types";
 
 const defaultBusinessHours: BusinessHours = {
@@ -38,7 +39,6 @@ export const CreateBusinessPage = () => {
   const [isEditingAddress, setIsEditingAddress] = useState(false);
   const [editedAddress, setEditedAddress] = useState("");
 
-  // Manejar éxito y errores con ToastAlert
   useEffect(() => {
     if (success) {
       ToastAlert.success(
@@ -46,7 +46,6 @@ export const CreateBusinessPage = () => {
         "Tu barbería ha sido registrada correctamente"
       );
       
-      // Resetear formulario
       setBusinessData({
         name: "",
         description: "",
@@ -58,7 +57,6 @@ export const CreateBusinessPage = () => {
       
       clearSuccess();
       
-      // Navegar a home después de un breve delay
       setTimeout(() => {
         navigate('/');
       }, 2000);
@@ -77,11 +75,9 @@ export const CreateBusinessPage = () => {
 
   const handleLocationSelect = useCallback(async (lat: number, lng: number) => {
     try {
-      // Asegurar que las coordenadas sean valores flotantes precisos
       const latitude = parseFloat(lat.toFixed(8));
       const longitude = parseFloat(lng.toFixed(8));
 
-      // Usar Nominatim (OpenStreetMap) para reverse geocoding
       const response = await fetch(
         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
       );
@@ -102,7 +98,6 @@ export const CreateBusinessPage = () => {
       setIsEditingAddress(false);
     } catch (error) {
       console.error("Error obteniendo la dirección:", error);
-      // Si falla el geocoding, usar las coordenadas como dirección
       const latitude = parseFloat(lat.toFixed(8));
       const longitude = parseFloat(lng.toFixed(8));
       const newLocation: Location = {
@@ -165,7 +160,6 @@ export const CreateBusinessPage = () => {
   };
 
   const handleSubmit = async () => {
-    // Validaciones básicas
     if (!businessData.name.trim()) {
       ToastAlert.error("Campo requerido", "El nombre del negocio es requerido");
       return;
@@ -183,7 +177,6 @@ export const CreateBusinessPage = () => {
       return;
     }
 
-    // Construir datos para enviar, asegurando que latitude y longitude sean flotantes
     const createBusinessData = {
       name: businessData.name.trim(),
       description: businessData.description.trim(),
@@ -203,22 +196,22 @@ export const CreateBusinessPage = () => {
       await createBusiness(createBusinessData);
     } catch (error) {
       console.error("Error creando negocio:", error);
-      // El error será manejado automáticamente por el useEffect que escucha el estado error
     }
   };
 
   return (
-    <div className="min-h-screen p-4">
-      <div className="max-w-7xl mx-auto space-y-6">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-100 mb-2">Crear Negocio</h1>
-          <p className="text-gray-200">Completa la información de tu negocio y selecciona la ubicación en el mapa</p>
-        </div>
+    <div className="min-h-screen">
+      <Navbar title="Crear Negocio" />
+      <div className="p-4">
+        <div className="max-w-7xl mx-auto space-y-6">
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-gray-100 mb-2">Crear Negocio</h1>
+            <p className="text-gray-200">Completa la información de tu negocio y selecciona la ubicación en el mapa</p>
+          </div>
 
 
 
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-          {/* Formulario de información básica */}
           <div className="space-y-6">
             <Card>
               <CardHeader>
@@ -279,7 +272,6 @@ export const CreateBusinessPage = () => {
               </CardContent>
             </Card>
 
-            {/* Horarios de negocio */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -295,7 +287,6 @@ export const CreateBusinessPage = () => {
               </CardContent>
             </Card>
 
-            {/* Ubicación */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -373,7 +364,6 @@ export const CreateBusinessPage = () => {
               </CardContent>
             </Card>
 
-            {/* Botón de envío */}
             <Button 
               onClick={handleSubmit} 
               className="w-full" 
@@ -385,7 +375,6 @@ export const CreateBusinessPage = () => {
           </div>
 
 
-          {/* Mapa */}
           <div className="space-y-6">
             <Card>
               <CardHeader>
@@ -404,33 +393,11 @@ export const CreateBusinessPage = () => {
               </CardContent>
             </Card>
 
-            {/* Vista previa del JSON */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-sm">Vista Previa - Datos a Enviar</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <pre className="text-xs p-3 rounded overflow-auto max-h-96">
-                  {JSON.stringify({
-                    name: businessData.name,
-                    description: businessData.description,
-                    address: businessData.location?.address || "",
-                    latitude: businessData.location ? parseFloat(businessData.location.latitude.toString()) : null,
-                    longitude: businessData.location ? parseFloat(businessData.location.longitude.toString()) : null,
-                    phone: businessData.phone,
-                    email: businessData.email,
-                    businessHours: businessData.businessHours,
-                    cancellationPolicy: {
-                      hoursBeforeAppointment: 24,
-                      refundPercentage: 100
-                    }
-                  }, null, 2)}
-                </pre>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </div>
     </div>
+    </div>
+
   );
 };
