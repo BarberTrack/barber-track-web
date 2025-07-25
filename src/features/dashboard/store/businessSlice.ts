@@ -58,7 +58,7 @@ export const updateBusinessById = createAsyncThunk<
     async ({businessId, business}, { rejectWithValue }) => {
         try {
             const response = await businessServices.updateBusinessById(businessId, business);
-            return response.data;
+            return response.business;
         }
         catch (error: any) {
             return rejectWithValue(error.response?.data?.message || 'Error al actualizar negocio');
@@ -109,7 +109,6 @@ export const businessSlice = createSlice({
                 state.error = null;
             })
             .addCase(updateBusinessById.fulfilled, (state, action) => {
-                state.isLoading = false;
                 state.business = action.payload;
             })
             .addCase(updateBusinessById.rejected, (state, action) => {

@@ -3,7 +3,7 @@ import type { BusinessesResponseModel } from '../types/business.type';
 import type { BarberCreateRequestModel, BarberUpdateRequestModel } from '../types/barber.type';
 import type { ServiceCreateRequest, ServiceCreateResponse, ServiceUpdateRequest, ServiceUpdateResponse } from '../types/services.type';
 
-import type { BusinessesDeleteResponseModel, BusinessUpdateRequestModel } from '../types/business.type';
+import type { BusinessesDeleteResponseModel, BusinessUpdateRequestModel, BusinessUpdateResponseModel } from '../types/business.type';
 import type { BarberDeleteResponseModel, BarberPortfolioResponse, DeletePortfolioImageResponse } from '../types/barber.type';
 import type { ServiceDeleteResponseModel } from '../types/services.type';
 import type { Business } from '../types/business.type';
@@ -28,8 +28,8 @@ class BusinessServices {
         return response.data;
     }
 
-    async updateBusinessById(businessId: string, business: BusinessUpdateRequestModel): Promise<BusinessesResponseModel> {
-        const response = await apiClient.put<BusinessesResponseModel>(`${this.businessEndpoint}/${businessId}`, business);
+    async updateBusinessById(businessId: string, business: BusinessUpdateRequestModel): Promise<BusinessUpdateResponseModel> {
+        const response = await apiClient.put<BusinessUpdateResponseModel>(`${this.businessEndpoint}/${businessId}`, business);
         return response.data;
     }
 

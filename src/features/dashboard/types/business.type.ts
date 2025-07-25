@@ -68,3 +68,8 @@ export interface BusinessUpdateRequestModel {
     businessHours: BusinessHours;
     cancellationPolicy: CancellationPolicy;
 }
+
+export interface BusinessUpdateResponseModel {
+    business: Business;
+    updated: boolean;
+}

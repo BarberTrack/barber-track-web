@@ -21,10 +21,12 @@ export const useUpdateBusiness = () => {
         return;
       }
       try {
-        await dispatch(updateBusinessById({ businessId, business })).unwrap();
+        // console.log('🔄 Actualizando business:', { businessId, business });
+        const result = await dispatch(updateBusinessById({ businessId, business })).unwrap();
         ToastAlert.success("Negocio actualizado correctamente", "Datos guardados");
-        navigate('/home');
+
       } catch (error) {
+        console.error('❌ Error al actualizar business:', error);
         ToastAlert.error("Algo salió mal", "Intenta de nuevo");
       }
     },
