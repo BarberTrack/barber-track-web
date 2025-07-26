@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../shared/components/shadcn/card';
 import { Button } from '../../../shared/components/shadcn/button';
 import { Badge } from '../../../shared/components/shadcn/badge';
@@ -8,13 +8,15 @@ import { Label } from '../../../shared/components/shadcn/label';
 import { Textarea } from '../../../shared/components/shadcn/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../shared/components/shadcn/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../../shared/components/shadcn/table';
-import { Plus, Edit } from 'lucide-react';
+import { Plus, Edit, Image, Upload, Trash2 } from 'lucide-react';
 import type{ Service } from '../types/services.type';
 import type { Barber } from '../types/barber.type';
 
 import { useCreateService } from '../hooks/useCreateService';
 import { useUpdateService } from '../hooks/useUpdateService';
+import { useServiceImage } from '../hooks/useServiceImage';
 import { DialogDelete } from '@/shared/components/DialogDelete';
+import { ToastAlert } from '@/shared/components/ToastAlert';
 
 interface ServicesTabProps {
   services: Service[];
@@ -34,6 +36,10 @@ export const ServicesTab = ({ services, businessId, barbers }: ServicesTabProps)
   const [addServicioModal, setAddServicioModal] = useState(false);
   const [editServicioModal, setEditServicioModal] = useState(false);
   const [editingServiceId, setEditingServiceId] = useState<string>('');
+  const [viewImageModal, setViewImageModal] = useState(false);
+  const [uploadImageModal, setUploadImageModal] = useState(false);
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [newServicio, setNewServicio] = useState<ServiceFormData>({
     name: '',
     description: '',
@@ -51,6 +57,7 @@ export const ServicesTab = ({ services, businessId, barbers }: ServicesTabProps)
   //console.log(services);
   const { createService, isCreating } = useCreateService();
   const { updateService, isUpdating } = useUpdateService();
+  const { uploadServiceImage, deleteServiceImage, isUploading, isDeleting } = useServiceImage();
 
   const getBarberName = (barberId: string) => {
     const barber = barbers.find(b => b.id === barberId);
@@ -143,6 +150,46 @@ export const ServicesTab = ({ services, businessId, barbers }: ServicesTabProps)
       });
     } catch (error) {
       console.error('Error al actualizar servicio:', error);
+    }
+  };
+
+  const handleViewImage = (service: Service) => {
+    setSelectedService(service);
+    setViewImageModal(true);
+  };
+
+  const handleUploadImage = (service: Service) => {
+    setSelectedService(service);
+    setUploadImageModal(true);
+  };
+
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && selectedService) {
+      try {
+        await uploadServiceImage(selectedService.id, file, businessId);
+        setUploadImageModal(false);
+        setSelectedService(null);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+        ToastAlert.success('Imagen subida', 'La imagen se ha subido correctamente');
+      } catch (error) {
+        console.error('Error al subir imagen:', error);
+      }
+    }
+  };
+
+  const handleDeleteImage = async () => {
+    if (selectedService) {
+      try {
+        await deleteServiceImage(selectedService.id, businessId);
+        setViewImageModal(false);
+        setSelectedService(null);
+        ToastAlert.success('Imagen eliminada', 'La imagen se ha eliminado correctamente');
+      } catch (error) {
+        console.error('Error al eliminar imagen:', error);
+      }
     }
   };
 
@@ -375,6 +422,7 @@ export const ServicesTab = ({ services, businessId, barbers }: ServicesTabProps)
                 <TableHead>Duración</TableHead>
                 <TableHead>Barbero</TableHead>
                 <TableHead>Estado</TableHead>
+                <TableHead>Imagen</TableHead>
                 <TableHead>Acciones</TableHead>
               </TableRow>
             </TableHeader>
@@ -405,6 +453,27 @@ export const ServicesTab = ({ services, businessId, barbers }: ServicesTabProps)
                   </TableCell>
                   <TableCell>
                     <div className="flex space-x-2">
+                      {servicio.imageUrl ? (
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleViewImage(servicio)}
+                        >
+                          <Image className="w-4 h-4" />
+                        </Button>
+                      ) : (
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleUploadImage(servicio)}
+                        >
+                          <Upload className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex space-x-2">
                       <Button 
                         variant="outline" 
                         size="sm"
@@ -421,6 +490,79 @@ export const ServicesTab = ({ services, businessId, barbers }: ServicesTabProps)
           </Table>
         )}
       </CardContent>
+
+      {/* Modal para ver imagen del servicio */}
+      <Dialog open={viewImageModal} onOpenChange={setViewImageModal}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Imagen del Servicio</DialogTitle>
+            <DialogDescription>
+              {selectedService?.name}
+            </DialogDescription>
+          </DialogHeader>
+          {selectedService?.imageUrl && (
+            <div className="flex flex-col items-center space-y-4">
+              <img 
+                src={selectedService.imageUrl} 
+                alt={selectedService.name}
+                className="max-w-full max-h-96 object-contain rounded-lg"
+              />
+              <Button 
+                variant="destructive" 
+                onClick={handleDeleteImage}
+                disabled={isDeleting}
+                className="w-full"
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                {isDeleting ? 'Eliminando...' : 'Eliminar Imagen'}
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal para subir imagen del servicio */}
+      <Dialog open={uploadImageModal} onOpenChange={setUploadImageModal}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Agregar Imagen al Servicio</DialogTitle>
+            <DialogDescription>
+              Selecciona una imagen para {selectedService?.name}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="service-image">Seleccionar imagen</Label>
+              <Input
+                id="service-image"
+                type="file"
+                accept="image/*"
+                ref={fileInputRef}
+                onChange={handleFileSelect}
+                disabled={isUploading}
+              />
+              {isUploading && (
+                <p className="text-sm text-gray-600">Subiendo imagen...</p>
+              )}
+            </div>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setUploadImageModal(false);
+                setSelectedService(null);
+                if (fileInputRef.current) {
+                  fileInputRef.current.value = '';
+                }
+              }}
+              disabled={isUploading}
+            >
+              Cancelar
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }; 

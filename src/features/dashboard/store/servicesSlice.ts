@@ -123,7 +123,7 @@ export const servicesSlice = createSlice({
                     const newService: Service = {
                         ...action.payload.service,
                         price: action.payload.service.price.toString(), // Convert number to string
-                        imageUrl: null, // Service type requires null
+                        imageUrl: action.payload.service.imageUrl, // Keep imageUrl from response
                         barberAssignments: [], // Add empty array as required by Service type
                         createdAt: action.payload.service.createdAt, // Keep as string
                         updatedAt: action.payload.service.updatedAt // Keep as string
@@ -152,7 +152,7 @@ export const servicesSlice = createSlice({
                         const updatedService: Service = {
                             ...action.payload.service,
                             price: action.payload.service.price.toString(), // Convert number to string
-                            imageUrl: null, // Service type requires null
+                            imageUrl: action.payload.service.imageUrl, // Keep imageUrl from response
                             barberAssignments: state.services.services[serviceIndex].barberAssignments, // Keep existing assignments
                             createdAt: action.payload.service.createdAt, // Keep as string
                             updatedAt: action.payload.service.updatedAt // Keep as string
