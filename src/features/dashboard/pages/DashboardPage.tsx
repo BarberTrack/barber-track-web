@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router';
 import { useDashboardData } from '../hooks/useDashboardData';
 import { Button } from '../../../shared/components/shadcn/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../shared/components/shadcn/tabs';
-import { ArrowLeft, MapPin, Clock, User, Scissors, MessageSquare, ImageIcon, Calendar, BarChart3 } from 'lucide-react';
+import { ArrowLeft, MapPin, Clock, User, Scissors, MessageSquare, ImageIcon, Calendar, BarChart3,Receipt} from 'lucide-react';
 import { 
   BusinessInfoTab, 
   BusinessHoursTab, 
@@ -99,6 +99,10 @@ export const DashboardPage = () => {
     navigate(`/analytics/${businessId}`);
   }
 
+  const navigateToPromotions = () => {
+    navigate(`/promotions/${businessId}`);
+  }
+
   return (
     <div className="min-h-screen ">
       <div className="shadow-sm border-b">
@@ -125,9 +129,13 @@ export const DashboardPage = () => {
             <Calendar className="w-6 h-6 mr-2" />
             Ver citas
           </Button>
-          <Button onClick={navigateToAnalytics}>
+          <Button onClick={navigateToAnalytics} className='mr-2'>
             <BarChart3 className="w-6 h-6 mr-2" />
             Ver analíticas
+          </Button>
+          <Button onClick={navigateToPromotions}>
+            <Receipt className="w-6 h-6 mr-2" />
+            Ver promociones
           </Button>
         </div>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
