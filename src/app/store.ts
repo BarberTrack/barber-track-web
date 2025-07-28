@@ -9,6 +9,7 @@ import createBusinessReducer from '../features/createBusiness/store/createBusine
 import appointmentReducer from '../features/appointments/store/appointmentSlice';
 import analyticsReducer from '../features/analytics/store/analyticsSlice';
 import promotionsReducer from '../features/promotions/store/promotionSlice';
+import statsReducer from '../features/stats/store/statsSlice';
 
 export const store = configureStore({
   reducer: {
@@ -22,6 +23,7 @@ export const store = configureStore({
     appointments: appointmentReducer,
     analytics: analyticsReducer,
     promotions: promotionsReducer,
+    stats: statsReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

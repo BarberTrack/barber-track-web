@@ -3,7 +3,7 @@ import { Button } from '@/shared/components/shadcn/button';
 import { Label } from '@/shared/components/shadcn/label';
 import { Input } from '@/shared/components/shadcn/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/shadcn/select';
-import { Filter, X, User, Calendar, CalendarDays } from 'lucide-react';
+import { Filter, X, User, Calendar } from 'lucide-react';
 import { useAppointmentFilters } from '../hooks/useAppointmentFilters';
 import type { AppointmentStatus } from '../types/appointment.types';
 

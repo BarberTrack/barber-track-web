@@ -108,6 +108,10 @@ export const DashboardPage = () => {
     navigate(`/machine-learning/${businessId}`);
   }
 
+  const navigateToStats = () => {
+    navigate(`/stats/${businessId}`);
+  }
+
   return (
     <div className="min-h-screen">
       <Navbar
@@ -132,6 +136,10 @@ export const DashboardPage = () => {
           <Button onClick={navigateToPromotions} className='mr-2'>
             <Receipt className="w-6 h-6 mr-2" />
             Ver promociones
+          </Button>
+          <Button onClick={navigateToStats} className='mr-2'>
+            <BarChart3 className="w-6 h-6 mr-2" />
+            Ver estadísticas
           </Button>
           <Button onClick={navigateToML}>
             <Bot className="w-6 h-6 mr-2" />

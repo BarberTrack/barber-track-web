@@ -18,7 +18,7 @@ import { AppointmentPage } from './features/appointments/pages/AppointmentPage';
 import { Analytics_page } from './features/analytics/page/Analytics_page';
 import { Promotions_page } from './features/promotions/pages/Promotions_page';  
 import { MLpage } from './features/ml/pages/MLpage';
-
+import { Stats_page } from './features/stats/page/Stats_page';
 configureApiClient();
 
 const router = createBrowserRouter([
@@ -53,6 +53,10 @@ const router = createBrowserRouter([
   { 
     path: "/machine-learning/:businessId",
     element: <MLpage/>
+  },
+  {
+    path: "/stats/:businessId",
+    element: <Stats_page/>
   }
 
 ]);
