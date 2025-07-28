@@ -17,6 +17,7 @@ import { Toaster } from './shared/components/shadcn/sonner';
 import { AppointmentPage } from './features/appointments/pages/AppointmentPage';
 import { Analytics_page } from './features/analytics/page/Analytics_page';
 import { Promotions_page } from './features/promotions/pages/Promotions_page';  
+import { MLpage } from './features/ml/pages/MLpage';
 
 configureApiClient();
 
@@ -49,7 +50,10 @@ const router = createBrowserRouter([
     path: "/promotions/:businessId",
     element: <Promotions_page/>
   },
-  
+  { 
+    path: "/machine-learning/:businessId",
+    element: <MLpage/>
+  }
 
 ]);
 
