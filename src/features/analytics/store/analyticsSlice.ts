@@ -1,77 +1,67 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import type { 
-  AnalyticsState, 
-  DashboardData, 
-  ServiceTrendsData, 
-  AnalyticsQueryParams 
-} from '../types/analytics.types';
 import { analyticsService } from '../services/analyticsService';
+import type { AnalyticsState } from '../types';
 
-const initialState: AnalyticsState = {
-  // Dashboard data
-  dashboardData: null,
-  isDashboardLoading: false,
-  dashboardError: null,
-  
-  // Service trends data
-  serviceTrendsData: null,
-  isServiceTrendsLoading: false,
-  serviceTrendsError: null,
-  
-  // Metadata
-  currentBusinessId: null,
-  lastFetchTime: null,
+// Helper function to get date range for last year
+const getLastYearDateRange = () => {
+  const now = new Date();
+  const from = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate()).toISOString().split('T')[0];
+  const to = new Date().toISOString().split('T')[0];
+  return { from, to };
 };
 
-// Async thunk para obtener datos del dashboard
-export const fetchDashboardData = createAsyncThunk<
-  DashboardData,
-  { businessId: string; params: AnalyticsQueryParams },
-  { rejectValue: string }
->(
-  'analytics/fetchDashboardData',
-  async ({ businessId, params }, { rejectWithValue }) => {
-    try {
-      const response = await analyticsService.getDashboardData(businessId, params);
-      return response;
-    } catch (error: any) {
-      return rejectWithValue(error.message || 'Error al obtener datos del dashboard');
+const initialState: AnalyticsState = {
+  dashboard: {
+    data: null,
+    loading: false,
+    error: null,
+  },
+  reports: {
+    data: null,
+    loading: false,
+    error: null,
+  },
+  filters: {
+    period: 'week',
+    reportType: 'appointments',
+    dateRange: getLastYearDateRange(),
+    groupBy: 'month',
+  },
+};
+
+// Async thunks
+export const fetchDashboard = createAsyncThunk(
+  'analytics/fetchDashboard',
+  async ({ businessId, period }: { businessId: string; period: 'week' | 'month' }) => {
+    const response = await analyticsService.getDashboard(businessId, period);
+    if (!response.success) {
+      throw new Error(response.message || 'Error al obtener datos del dashboard');
     }
+    return response.data;
   }
 );
 
-// Async thunk para obtener tendencias de servicios
-export const fetchServiceTrends = createAsyncThunk<
-  ServiceTrendsData,
-  { businessId: string; params: AnalyticsQueryParams },
-  { rejectValue: string }
->(
-  'analytics/fetchServiceTrends',
-  async ({ businessId, params }, { rejectWithValue }) => {
-    try {
-      const response = await analyticsService.getServiceTrends(businessId, params);
-      return response;
-    } catch (error: any) {
-      return rejectWithValue(error.message || 'Error al obtener tendencias de servicios');
+export const fetchReports = createAsyncThunk(
+  'analytics/fetchReports',
+  async ({
+    businessId,
+    type,
+    from,
+    to,
+    groupBy,
+  }: {
+    businessId: string;
+    type: 'appointments' | 'revenue' | 'services';
+    from: string;
+    to: string;
+    groupBy: 'week' | 'month';
+  }) => {
+    const response = await analyticsService.getReports(businessId, type, from, to, groupBy);
+    if (!response.success) {
+      throw new Error(response.message || 'Error al obtener reportes');
     }
-  }
-);
-
-// Async thunk para obtener todos los datos de analytics
-export const fetchCompleteAnalytics = createAsyncThunk<
-  { dashboard: DashboardData; serviceTrends: ServiceTrendsData },
-  { businessId: string; params: AnalyticsQueryParams },
-  { rejectValue: string }
->(
-  'analytics/fetchCompleteAnalytics',
-  async ({ businessId, params }, { rejectWithValue }) => {
-    try {
-      const response = await analyticsService.getCompleteAnalytics(businessId, params);
-      return response;
-    } catch (error: any) {
-      return rejectWithValue(error.message || 'Error al obtener datos de analytics');
-    }
+    return response.data;
   }
 );
 
@@ -79,111 +69,74 @@ const analyticsSlice = createSlice({
   name: 'analytics',
   initialState,
   reducers: {
-    // Limpiar errores del dashboard
+    // Filter actions
+    setPeriod: (state, action: PayloadAction<'week' | 'month'>) => {
+      state.filters.period = action.payload;
+    },
+    setReportType: (state, action: PayloadAction<'appointments' | 'revenue' | 'services'>) => {
+      state.filters.reportType = action.payload;
+    },
+    setDateRange: (state, action: PayloadAction<{ from: string; to: string }>) => {
+      state.filters.dateRange = action.payload;
+    },
+    setGroupBy: (state, action: PayloadAction<'week' | 'month'>) => {
+      state.filters.groupBy = action.payload;
+    },
+    
+    // Clear actions
     clearDashboardError: (state) => {
-      state.dashboardError = null;
+      state.dashboard.error = null;
     },
-
-    // Limpiar errores de tendencias de servicios
-    clearServiceTrendsError: (state) => {
-      state.serviceTrendsError = null;
+    clearReportsError: (state) => {
+      state.reports.error = null;
     },
-
-    // Limpiar todos los errores
     clearAllErrors: (state) => {
-      state.dashboardError = null;
-      state.serviceTrendsError = null;
-    },
-
-    // Limpiar todos los datos
-    clearAllData: (state) => {
-      state.dashboardData = null;
-      state.serviceTrendsData = null;
-      state.currentBusinessId = null;
-      state.lastFetchTime = null;
-      state.dashboardError = null;
-      state.serviceTrendsError = null;
-    },
-
-    // Actualizar business ID actual
-    setCurrentBusinessId: (state, action: PayloadAction<string>) => {
-      // Si cambia el business ID, limpiar datos previos
-      if (state.currentBusinessId !== action.payload) {
-        state.serviceTrendsData = null;
-        state.serviceTrendsError = null;
-      }
-      state.currentBusinessId = action.payload;
+      state.dashboard.error = null;
+      state.reports.error = null;
     },
   },
   extraReducers: (builder) => {
+    // Dashboard cases
     builder
-      // fetchDashboardData
-      .addCase(fetchDashboardData.pending, (state) => {
-        state.isDashboardLoading = true;
-        state.dashboardError = null;
+      .addCase(fetchDashboard.pending, (state) => {
+        state.dashboard.loading = true;
+        state.dashboard.error = null;
       })
-      .addCase(fetchDashboardData.fulfilled, (state, action) => {
-        state.isDashboardLoading = false;
-        state.dashboardData = action.payload;
-        state.lastFetchTime = new Date().toISOString();
+      .addCase(fetchDashboard.fulfilled, (state, action) => {
+        state.dashboard.loading = false;
+        state.dashboard.data = action.payload;
+        state.dashboard.error = null;
       })
-      .addCase(fetchDashboardData.rejected, (state, action) => {
-        state.isDashboardLoading = false;
-        state.dashboardError = action.payload || 'Error al obtener datos del dashboard';
+      .addCase(fetchDashboard.rejected, (state, action) => {
+        state.dashboard.loading = false;
+        state.dashboard.error = action.error.message || 'Error al cargar dashboard';
       })
-
-      // fetchServiceTrends
-      .addCase(fetchServiceTrends.pending, (state) => {
-        state.isServiceTrendsLoading = true;
-        state.serviceTrendsError = null;
+      
+      // Reports cases
+      .addCase(fetchReports.pending, (state) => {
+        state.reports.loading = true;
+        state.reports.error = null;
       })
-      .addCase(fetchServiceTrends.fulfilled, (state, action) => {
-        state.isServiceTrendsLoading = false;
-        state.serviceTrendsData = action.payload;
-        state.currentBusinessId = action.payload.businessData.businessId;
-        state.lastFetchTime = new Date().toISOString();
+      .addCase(fetchReports.fulfilled, (state, action) => {
+        state.reports.loading = false;
+        state.reports.data = action.payload;
+        state.reports.error = null;
       })
-      .addCase(fetchServiceTrends.rejected, (state, action) => {
-        state.isServiceTrendsLoading = false;
-        state.serviceTrendsError = action.payload || 'Error al obtener tendencias de servicios';
-      })
-
-      // fetchCompleteAnalytics
-      .addCase(fetchCompleteAnalytics.pending, (state) => {
-        state.isDashboardLoading = true;
-        state.isServiceTrendsLoading = true;
-        state.dashboardError = null;
-        state.serviceTrendsError = null;
-      })
-      .addCase(fetchCompleteAnalytics.fulfilled, (state, action) => {
-        state.isDashboardLoading = false;
-        state.isServiceTrendsLoading = false;
-        state.dashboardData = action.payload.dashboard;
-        state.serviceTrendsData = action.payload.serviceTrends;
-        state.currentBusinessId = action.payload.serviceTrends.businessData.businessId;
-        state.lastFetchTime = new Date().toISOString();
-      })
-      .addCase(fetchCompleteAnalytics.rejected, (state, action) => {
-        state.isDashboardLoading = false;
-        state.isServiceTrendsLoading = false;
-        const error = action.payload || 'Error al obtener datos de analytics';
-        state.dashboardError = error;
-        state.serviceTrendsError = error;
+      .addCase(fetchReports.rejected, (state, action) => {
+        state.reports.loading = false;
+        state.reports.error = action.error.message || 'Error al cargar reportes';
       });
   },
 });
 
-// Export actions
 export const {
+  setPeriod,
+  setReportType,
+  setDateRange,
+  setGroupBy,
   clearDashboardError,
-  clearServiceTrendsError,
+  clearReportsError,
   clearAllErrors,
-  clearAllData,
-  setCurrentBusinessId,
 } = analyticsSlice.actions;
 
-// Selector
-export const selectAnalytics = (state: { analytics: AnalyticsState }) => state.analytics;
-
-// Export reducer
-export default analyticsSlice.reducer; 
+export default analyticsSlice.reducer;

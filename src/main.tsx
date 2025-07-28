@@ -8,6 +8,7 @@ import { Provider } from 'react-redux';
 import './index.css'
 import { ThemeProvider } from "./core/theme/components/theme-provider"
 import { AuthPage } from "@/features/auth/pages/AuthPage"
+import { RegisterPage } from "@/features/auth/pages/RegisterPage"
 import { store } from "./app/store";
 import { configureApiClient } from './shared/utils/configureApiClient';
 import { HomePage } from "./features/home/pages/HomePage";
@@ -15,14 +16,24 @@ import { DashboardPage } from './features/dashboard/pages/DashboardPage';
 import { CreateBusinessPage } from './features/createBusiness/page/CreateBusinessPage';
 import { Toaster } from './shared/components/shadcn/sonner';
 import { AppointmentPage } from './features/appointments/pages/AppointmentPage';
-import { AnalyticsPage } from './features/analytics/page/AnalyticsPage';
-
+import { Analytics_page } from './features/analytics/page/Analytics_page';
+import { Promotions_page } from './features/promotions/pages/Promotions_page';  
+import { MLpage } from './features/ml/pages/MLpage';
+import { Stats_page } from './features/stats/page/Stats_page';
 configureApiClient();
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <AuthPage />,
+  },
+  {
+    path: "/auth",
+    element: <AuthPage />,
+  },
+  {
+    path: "/register",
+    element: <RegisterPage />,
   },
   {
     path: "/home",
@@ -42,10 +53,20 @@ const router = createBrowserRouter([
   },
   {
     path: "/analytics/:businessId",
-    element: <AnalyticsPage/>
+    element: <Analytics_page/>
   },
-
-  
+  {
+    path: "/promotions/:businessId",
+    element: <Promotions_page/>
+  },
+  { 
+    path: "/machine-learning/:businessId",
+    element: <MLpage/>
+  },
+  {
+    path: "/stats/:businessId",
+    element: <Stats_page/>
+  }
 
 ]);
 

@@ -12,6 +12,16 @@ const statusConfig = {
     variant: 'secondary' as const,
     className: 'border-blue-200 text-blue-700 bg-blue-50',
   },
+  confirmed: {
+    label: 'Confirmada',
+    variant: 'secondary' as const,
+    className: 'border-cyan-200 text-cyan-700 bg-cyan-50',
+  },
+  in_progress: {
+    label: 'En Progreso',
+    variant: 'secondary' as const,
+    className: 'border-yellow-200 text-yellow-700 bg-yellow-50',
+  },
   completed: {
     label: 'Completada',
     variant: 'secondary' as const,

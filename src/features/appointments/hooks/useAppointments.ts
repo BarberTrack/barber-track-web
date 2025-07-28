@@ -122,6 +122,8 @@ export const useAppointments = (businessId?: string) => {
       limit: filters.limit,
       ...(filters.status && { status: filters.status }),
       ...(filters.barberId && { barberId: filters.barberId }),
+      ...(filters.from && { from: filters.from }),
+      ...(filters.to && { to: filters.to }),
     };
 
     dispatch(fetchAppointments({ businessId, params }));

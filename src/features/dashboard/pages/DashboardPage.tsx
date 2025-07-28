@@ -3,7 +3,8 @@ import { useParams, useNavigate } from 'react-router';
 import { useDashboardData } from '../hooks/useDashboardData';
 import { Button } from '../../../shared/components/shadcn/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../shared/components/shadcn/tabs';
-import { ArrowLeft, MapPin, Clock, User, Scissors, MessageSquare, ImageIcon, Calendar, BarChart3 } from 'lucide-react';
+import { MapPin, Clock, User, Scissors, MessageSquare, ImageIcon, Calendar, BarChart3,Receipt, Bot, } from 'lucide-react';
+import { Navbar } from '../../../shared/components';
 import { 
   BusinessInfoTab, 
   BusinessHoursTab, 
@@ -99,25 +100,28 @@ export const DashboardPage = () => {
     navigate(`/analytics/${businessId}`);
   }
 
-  return (
-    <div className="min-h-screen ">
-      <div className="shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Volver
-              </Button>
-              <div>
-                <h1 className="text-2xl font-bold text-blue-900">{business.name}</h1>
-                <p className="text-sm text-gray-600">Dashboard de administración</p>
-              </div>
-            </div>
+  const navigateToPromotions = () => {
+    navigate(`/promotions/${businessId}`);
+  }
 
-          </div>
-        </div>
-      </div>
+  const navigateToML = () => {
+    navigate(`/machine-learning/${businessId}`);
+  }
+
+  const navigateToStats = () => {
+    navigate(`/stats/${businessId}`);
+  }
+
+  return (
+    <div className="min-h-screen">
+      <Navbar
+        variant="dashboard"
+        title={business.name}
+        subtitle="Dashboard de administración"
+        onBack={() => navigate('/')}
+        backButtonText="Volver"
+        showLogout={false}
+      />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex justify-end mb-4">
@@ -125,9 +129,21 @@ export const DashboardPage = () => {
             <Calendar className="w-6 h-6 mr-2" />
             Ver citas
           </Button>
-          <Button onClick={navigateToAnalytics}>
+          <Button onClick={navigateToAnalytics} className='mr-2'>
             <BarChart3 className="w-6 h-6 mr-2" />
             Ver analíticas
+          </Button>
+          <Button onClick={navigateToPromotions} className='mr-2'>
+            <Receipt className="w-6 h-6 mr-2" />
+            Ver promociones
+          </Button>
+          <Button onClick={navigateToStats} className='mr-2'>
+            <BarChart3 className="w-6 h-6 mr-2" />
+            Ver estadísticas
+          </Button>
+          <Button onClick={navigateToML}>
+            <Bot className="w-6 h-6 mr-2" />
+            Ver ML
           </Button>
         </div>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">

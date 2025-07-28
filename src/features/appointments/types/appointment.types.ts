@@ -24,9 +24,10 @@ export interface Appointment {
   barber: AppointmentBarber;
   service: AppointmentService;
   package: AppointmentPackage | null;
+  client: AppointmentClient;
 }
 
-export type AppointmentStatus = 'scheduled' | 'completed' | 'cancelled' | 'no_show';
+export type AppointmentStatus = 'scheduled' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled' | 'no_show';
 
 export interface StatusHistoryItem {
   id: string;
@@ -53,6 +54,14 @@ export interface AppointmentBarber {
   phone: string;
   email: string;
   profileImageUrl: string | null;
+}
+
+export interface AppointmentClient {
+  id: string;
+  firstName: string;
+  lastName: string;
+  name: string;
+  email: string;
 }
 
 export interface AppointmentService {
@@ -91,6 +100,8 @@ export interface AppointmentsData {
 
 export interface StatusStats {
   scheduled: number;
+  confirmed: number;
+  in_progress: number;
   completed: number;
   cancelled: number;
 }
@@ -98,6 +109,8 @@ export interface StatusStats {
 export interface ApiFilters {
   businessId: string;
   status?: AppointmentStatus;
+  from?: string;
+  to?: string;
 }
 
 // Tipos para filtros y paginación
@@ -106,6 +119,8 @@ export interface QueryParams {
   page?: number;
   status?: AppointmentStatus;
   barberId?: string;
+  from?: string;
+  to?: string;
 }
 
 export interface PaginationInfo {
@@ -120,6 +135,8 @@ export interface FilterState {
   barberId?: string;
   page: number;
   limit: number;
+  from?: string;
+  to?: string;
 }
 
 // Tipo para el estado del slice

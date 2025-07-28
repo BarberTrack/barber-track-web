@@ -72,8 +72,6 @@ export const ReviewsTab = ({ businessId }: ReviewsTabProps) => {
     switch (status) {
       case 'approved':
         return <Badge className="bg-green-100 text-green-800">Aprobada</Badge>;
-      case 'pending':
-        return <Badge className="bg-yellow-100 text-yellow-800">Pendiente</Badge>;
       case 'rejected':
         return <Badge className="bg-red-100 text-red-800">Rechazada</Badge>;
       default:
@@ -87,8 +85,6 @@ export const ReviewsTab = ({ businessId }: ReviewsTabProps) => {
         return 'Aprobadas';
       case 'rejected':
         return 'Rechazadas';
-      case 'pending':
-        return 'Pendientes';
       case 'all':
         return 'Todas';
       default:
@@ -149,7 +145,6 @@ export const ReviewsTab = ({ businessId }: ReviewsTabProps) => {
                 <SelectContent>
                   <SelectItem value="all">Todas</SelectItem>
                   <SelectItem value="approved">Aprobadas</SelectItem>
-                  <SelectItem value="pending">Pendientes</SelectItem>
                   <SelectItem value="rejected">Rechazadas</SelectItem>
                 </SelectContent>
               </Select>

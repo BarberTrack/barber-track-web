@@ -13,6 +13,8 @@ const initialState: AppointmentState = {
   appointments: [],
   statusStats: {
     scheduled: 0,
+    confirmed: 0,
+    in_progress: 0,
     completed: 0,
     cancelled: 0,
   },
@@ -20,13 +22,13 @@ const initialState: AppointmentState = {
     page: 1,
     totalPages: 1,
     total: 0,
-    limit: 10,
+    limit: 5,
   },
   isLoading: false,
   error: null,
   filters: {
     page: 1,
-    limit: 10,
+    limit: 5,
   },
 };
 
@@ -104,7 +106,7 @@ const appointmentSlice = createSlice({
     resetFilters: (state) => {
       state.filters = {
         page: 1,
-        limit: 10,
+        limit: 5,
       };
     },
 
@@ -120,6 +122,25 @@ const appointmentSlice = createSlice({
       state.pagination.limit = action.payload;
     },
 
+    // Establecer filtro de fecha desde
+    setFromDate: (state, action: PayloadAction<string | undefined>) => {
+      state.filters.from = action.payload;
+      state.filters.page = 1; // Reset to first page when filter changes
+    },
+
+    // Establecer filtro de fecha hasta
+    setToDate: (state, action: PayloadAction<string | undefined>) => {
+      state.filters.to = action.payload;
+      state.filters.page = 1; // Reset to first page when filter changes
+    },
+
+    // Establecer rango de fechas
+    setDateRange: (state, action: PayloadAction<{ from?: string; to?: string }>) => {
+      state.filters.from = action.payload.from;
+      state.filters.to = action.payload.to;
+      state.filters.page = 1; // Reset to first page when filter changes
+    },
+
     // Limpiar appointments
     clearAppointments: (state) => {
       state.appointments = [];
@@ -127,10 +148,12 @@ const appointmentSlice = createSlice({
         page: 1,
         totalPages: 1,
         total: 0,
-        limit: 10,
+        limit: 5,
       };
       state.statusStats = {
         scheduled: 0,
+        confirmed: 0,
+        in_progress: 0,
         completed: 0,
         cancelled: 0,
       };
@@ -155,6 +178,8 @@ const appointmentSlice = createSlice({
         const apiStats = responseData?.statusStats;
         state.statusStats = {
           scheduled: apiStats?.scheduled || 0,
+          confirmed: apiStats?.confirmed || 0,
+          in_progress: apiStats?.in_progress || 0,
           completed: apiStats?.completed || 0,
           cancelled: apiStats?.cancelled || 0,
         };
@@ -188,6 +213,8 @@ const appointmentSlice = createSlice({
         const apiStats = responseData?.statusStats;
         state.statusStats = {
           scheduled: apiStats?.scheduled || 0,
+          confirmed: apiStats?.confirmed || 0,
+          in_progress: apiStats?.in_progress || 0,
           completed: apiStats?.completed || 0,
           cancelled: apiStats?.cancelled || 0,
         };
@@ -223,6 +250,8 @@ const appointmentSlice = createSlice({
         const apiStats = responseData?.statusStats;
         state.statusStats = {
           scheduled: apiStats?.scheduled || 0,
+          confirmed: apiStats?.confirmed || 0,
+          in_progress: apiStats?.in_progress || 0,
           completed: apiStats?.completed || 0,
           cancelled: apiStats?.cancelled || 0,
         };
@@ -248,6 +277,9 @@ export const {
   resetFilters,
   setPage,
   setLimit,
+  setFromDate,
+  setToDate,
+  setDateRange,
   clearAppointments,
 } = appointmentSlice.actions;
 
