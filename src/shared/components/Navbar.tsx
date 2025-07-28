@@ -1,6 +1,9 @@
-import { useNavigate } from 'react-router';
+import { useNavigate, useLocation, useParams } from 'react-router';
 import { Button } from './shadcn/button';
 import { ArrowLeft, LogOut, Scissors } from 'lucide-react';
+import { useAppSelector } from '../../app/hooks';
+import { selectBusinesses } from '../../features/home/store/businessSlice';
+import { selectBusiness } from '../../features/dashboard/store/businessSlice';
 
 interface NavbarProps {
   showBackButton?: boolean;
@@ -22,6 +25,40 @@ export const Navbar = ({
   variant = 'default'
 }: NavbarProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { businessId } = useParams<{ businessId: string }>();
+  
+  // Get businesses from different stores
+  const businesses = useAppSelector(selectBusinesses);
+  const currentBusiness = useAppSelector(selectBusiness);
+  
+  // Function to get current business name
+  const getCurrentBusinessName = () => {
+    // Don't show business name on home page
+    if (location.pathname === '/' || location.pathname === '/home') {
+      return null;
+    }
+    
+    // If we have businessId in params, try to get it from dashboard store first
+    if (businessId && currentBusiness) {
+      return currentBusiness.name;
+    }
+    
+    // If we have businessId but no current business, try to find it in businesses list
+    if (businessId && businesses.length > 0) {
+      const business = businesses.find(b => b.id === businessId);
+      return business?.name || null;
+    }
+    
+    // If there's only one business and no businessId in params, show it
+    if (businesses.length === 1 && !businessId) {
+      return businesses[0].name;
+    }
+    
+    return null;
+  };
+
+  const currentBusinessName = getCurrentBusinessName();
 
   const handleGoHome = () => {
     navigate('/');
@@ -56,9 +93,14 @@ export const Navbar = ({
               )}
               <Scissors className="h-6 w-6 text-blue-600 dark:text-blue-400" />
               <div>
-                <h1 className="text-2xl font-bold text-blue-400">
-                  {title || 'BarberTrack'}
-                </h1>
+                <div className="flex items-center gap-3">
+                  <h1 className="text-2xl font-bold text-blue-400">
+                    {title || 'BarberTrack'}
+                  </h1>
+                  {currentBusinessName && (
+                    <span className="text-lg text-blue-300 font-medium">- {currentBusinessName}</span>
+                  )}
+                </div>
                 {subtitle && (
                   <p className="text-sm text-gray-300">{subtitle}</p>
                 )}
@@ -103,9 +145,14 @@ export const Navbar = ({
           <div className="flex items-center gap-2">
             <Scissors className="h-6 w-6 text-blue-600 dark:text-blue-400" />
             <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                {title || 'BarberTrack'}
-              </h1>
+              <div className="flex items-center gap-3">
+                <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                  {title || 'BarberTrack'}
+                </h1>
+                {currentBusinessName && (
+                  <span className="text-lg text-blue-600 dark:text-blue-400 font-medium">- {currentBusinessName}</span>
+                )}
+              </div>
               {subtitle && (
                 <p className="text-sm text-gray-600 dark:text-gray-400">{subtitle}</p>
               )}
