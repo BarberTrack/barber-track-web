@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useParams } from 'react-router';
+import { useParams, useNavigate } from 'react-router';
 import { useAnalyticsDashboard, useAnalyticsReports, useAnalyticsFilters } from '../hooks';
 import {
   AnalyticsHeader,
@@ -9,10 +9,12 @@ import {
   BarbersRanking,
   PeakHoursChart,
 } from '../components';
+import { Navbar } from '../../../shared/components';
 
 
 export const Analytics_page = () => {
   const { businessId } = useParams<{ businessId: string }>();
+  const navigate = useNavigate();
   
   const { data: dashboardData, loading: dashboardLoading, getDashboard } = useAnalyticsDashboard(businessId || '');
   const { data: reportsData, loading: reportsLoading, getReports } = useAnalyticsReports(businessId || '');
@@ -60,6 +62,12 @@ export const Analytics_page = () => {
     updateGroupBy(newGroupBy);
   };
 
+  const handleBackToDashboard = () => {
+    if (businessId) {
+      navigate(`/dashboard/${businessId}`);
+    }
+  };
+
   if (!businessId) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -72,8 +80,17 @@ export const Analytics_page = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-100 p-4 sm:p-6 lg:p-8">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-gray-950 text-gray-100">
+      <Navbar
+        variant="dashboard"
+        title="Analíticas"
+        subtitle="Analytics del negocio"
+        onBack={handleBackToDashboard}
+        backButtonText="Dashboard"
+        showLogout={true}
+      />
+      <div className="p-4 sm:p-6 lg:p-8">
+        <div className="max-w-7xl mx-auto space-y-6">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           <div className="lg:col-span-3">
             <AnalyticsHeader 
@@ -119,6 +136,7 @@ export const Analytics_page = () => {
             loading={reportsLoading} 
           />
         )}
+        </div>
       </div>
     </div>
   );

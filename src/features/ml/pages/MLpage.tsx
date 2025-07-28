@@ -1,14 +1,20 @@
 
-import { useParams } from 'react-router';
+import { useParams, useNavigate } from 'react-router';
 import { MLDashboard } from '../components';
 import { useDashboardData } from '../../dashboard/hooks/useDashboardData';
+import { Navbar } from '../../../shared/components';
 import { Loader2, AlertTriangle } from 'lucide-react';
 
 export const MLpage = () => {
   const { businessId } = useParams<{ businessId: string }>();
+  const navigate = useNavigate();
 
   // Get business information with loading states
   const { business, businessLoading, businessError } = useDashboardData(businessId || '');
+
+  const handleBackToDashboard = () => {
+    navigate(`/dashboard/${businessId}`);
+  };
 
   if (!businessId) {
     return (
@@ -55,9 +61,19 @@ export const MLpage = () => {
   }
 
   return (
-    <MLDashboard 
-      businessId={businessId} 
-      businessName={business?.name}
-    />
+    <div className="min-h-screen">
+      <Navbar
+        variant="dashboard"
+        title="Machine Learning"
+        subtitle={`Analytics avanzado - ${business?.name || 'Cargando...'}`}
+        onBack={handleBackToDashboard}
+        backButtonText="Dashboard"
+        showLogout={true}
+      />
+      <MLDashboard 
+        businessId={businessId} 
+        businessName={business?.name}
+      />
+    </div>
   );
 };

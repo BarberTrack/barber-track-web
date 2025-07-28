@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 import { Button } from "@/shared/components/shadcn/button";
-import { Plus, ArrowLeft } from "lucide-react";
+import { Plus } from "lucide-react";
+import { Navbar } from "@/shared/components";
 import { PromotionCard, PromotionForm } from "../components";
 import { usePromotions } from "../hooks";
 import { ToastAlert } from "@/shared/components/ToastAlert";
@@ -99,6 +100,10 @@ export const Promotions_page = () => {
     }
   };
 
+  const handleBackToDashboard = () => {
+    navigate(`/dashboard/${businessId}`);
+  };
+
   if (isLoading && promotions.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-900">
@@ -110,40 +115,27 @@ export const Promotions_page = () => {
   }
 
   return (
-<div className="min-h-screen p-4 sm:p-6 text-gray-200">
-  <div className="max-w-7xl mx-auto">
-
-    <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 md:mb-8 gap-4">
-
-      <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-gray-200 hover:text-blue-300 mb-3 sm:mb-0 w-fit"
-          onClick={() => navigate(`/dashboard/${businessId}`)}
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Volver
-        </Button>
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-200">
-            Promociones
-          </h1>
-          <p className="text-blue-300 mt-1 sm:mt-2 text-sm sm:text-base">
-            Gestiona las promociones de tu negocio
-          </p>
-        </div>
-      </div>
-
-      <Button
-        className=" hover:bg-blue-700 text-black w-full sm:w-auto"
-        onClick={handleCreatePromotion}
-        disabled={isLoading}
-      >
-        <Plus className="w-4 h-4 mr-2" />
-        Crear Promoción
-      </Button>
-    </div>
+    <div className="min-h-screen">
+      <Navbar
+        variant="dashboard"
+        title="Promociones"
+        subtitle="Gestiona las promociones de tu negocio"
+        onBack={handleBackToDashboard}
+        backButtonText="Dashboard"
+        showLogout={true}
+      />
+      <div className="p-4 sm:p-6 text-gray-200">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 md:mb-8 gap-4">
+            <Button
+              className=" hover:bg-blue-700 text-black w-full sm:w-auto"
+              onClick={handleCreatePromotion}
+              disabled={isLoading}
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Crear Promoción
+            </Button>
+          </div>
 
     {promotions.length > 0 ? (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
@@ -187,8 +179,8 @@ export const Promotions_page = () => {
       editingPromotion={editingPromotion}
       isLoading={isLoading}
     />
-  </div>
-</div>
-
+        </div>
+      </div>
+    </div>
   );
 };

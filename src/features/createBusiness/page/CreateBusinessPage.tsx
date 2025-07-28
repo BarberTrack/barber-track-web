@@ -201,7 +201,12 @@ export const CreateBusinessPage = () => {
 
   return (
     <div className="min-h-screen">
-      <Navbar title="Crear Negocio" />
+      <Navbar 
+        variant="dashboard" 
+        title="Crear Negocio" 
+        subtitle="Completa la información de tu barbería"
+        showLogout={true}
+      />
       <div className="p-4">
         <div className="max-w-7xl mx-auto space-y-6">
           <div className="text-center">

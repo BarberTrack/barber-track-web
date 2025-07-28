@@ -3,8 +3,8 @@ import type { ServiceTrendsResponse, PromotionPredictionsResponse } from '../typ
 
 class MLService {
 
-  private readonly SERVICE_TRENDS_BASE_URL = import.meta.env.VITE_SERVICE_TRENDS_BASE_URL || 'https://service-trends-production.up.railway.app/api/ml';
-  private readonly PROMOTIONS_BASE_URL = import.meta.env.VITE_PROMOTIONS_BASE_URL || 'https://ml-promotions-production.up.railway.app/api/ml';
+  private readonly SERVICE_TRENDS_BASE_URL = import.meta.env.VITE_SERVICE_TRENDS_BASE_URL;
+  private readonly PROMOTIONS_BASE_URL = import.meta.env.VITE_PROMOTIONS_BASE_URL;
 
   /**
    * Obtiene las tendencias de servicios para un negocio específico
