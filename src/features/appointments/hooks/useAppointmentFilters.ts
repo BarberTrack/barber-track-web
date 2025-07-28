@@ -5,6 +5,9 @@ import {
   resetFilters,
   setPage,
   setLimit,
+  setFromDate,
+  setToDate,
+  setDateRange,
   selectAppointments,
 } from '../store/appointmentSlice';
 import type { AppointmentStatus } from '../types/appointment.types';
@@ -36,6 +39,53 @@ export const useAppointmentFilters = () => {
     dispatch(setPage(1)); // Reset to first page when limit changes
   }, [dispatch]);
 
+  // Establecer fecha desde
+  const updateFromDate = useCallback((date?: string) => {
+    dispatch(setFromDate(date));
+  }, [dispatch]);
+
+  // Establecer fecha hasta
+  const updateToDate = useCallback((date?: string) => {
+    dispatch(setToDate(date));
+  }, [dispatch]);
+
+  // Establecer rango de fechas
+  const updateDateRange = useCallback((from?: string, to?: string) => {
+    dispatch(setDateRange({ from, to }));
+  }, [dispatch]);
+
+  // Utilidades para rangos de fecha comunes
+  const setTodayRange = useCallback(() => {
+    const today = new Date();
+    const from = new Date(today.getFullYear(), today.getMonth(), today.getDate()).toISOString();
+    const to = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999).toISOString();
+    dispatch(setDateRange({ from, to }));
+  }, [dispatch]);
+
+  const setThisWeekRange = useCallback(() => {
+    const today = new Date();
+    const firstDayOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
+    const lastDayOfWeek = new Date(today.setDate(today.getDate() - today.getDay() + 6));
+    
+    const from = new Date(firstDayOfWeek.getFullYear(), firstDayOfWeek.getMonth(), firstDayOfWeek.getDate()).toISOString();
+    const to = new Date(lastDayOfWeek.getFullYear(), lastDayOfWeek.getMonth(), lastDayOfWeek.getDate(), 23, 59, 59, 999).toISOString();
+    dispatch(setDateRange({ from, to }));
+  }, [dispatch]);
+
+  const setThisMonthRange = useCallback(() => {
+    const today = new Date();
+    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    
+    const from = firstDayOfMonth.toISOString();
+    const to = new Date(lastDayOfMonth.getFullYear(), lastDayOfMonth.getMonth(), lastDayOfMonth.getDate(), 23, 59, 59, 999).toISOString();
+    dispatch(setDateRange({ from, to }));
+  }, [dispatch]);
+
+  const clearDateFilters = useCallback(() => {
+    dispatch(setDateRange({ from: undefined, to: undefined }));
+  }, [dispatch]);
+
   // Limpiar todos los filtros
   const clearAllFilters = useCallback(() => {
     dispatch(resetFilters());
@@ -45,9 +95,11 @@ export const useAppointmentFilters = () => {
   const hasActiveFilters = useMemo(() => {
     return !!(
       filters.status || 
-      filters.barberId
+      filters.barberId ||
+      filters.from ||
+      filters.to
     );
-  }, [filters.status, filters.barberId]);
+  }, [filters.status, filters.barberId, filters.from, filters.to]);
 
   // Obtener query params para la API
   const getQueryParams = useCallback(() => {
@@ -56,6 +108,8 @@ export const useAppointmentFilters = () => {
       limit: filters.limit,
       ...(filters.status && { status: filters.status }),
       ...(filters.barberId && { barberId: filters.barberId }),
+      ...(filters.from && { from: filters.from }),
+      ...(filters.to && { to: filters.to }),
     };
   }, [filters]);
 
@@ -123,6 +177,15 @@ export const useAppointmentFilters = () => {
     updateStatus,
     updateBarber,
     clearAllFilters,
+    
+    // Acciones de filtros de fecha
+    updateFromDate,
+    updateToDate,
+    updateDateRange,
+    setTodayRange,
+    setThisWeekRange,
+    setThisMonthRange,
+    clearDateFilters,
     
     // Acciones de paginación
     changePage,

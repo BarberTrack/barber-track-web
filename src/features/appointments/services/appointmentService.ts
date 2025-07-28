@@ -23,6 +23,8 @@ class AppointmentService {
       if (params?.page) queryParams.append('page', params.page.toString());
       if (params?.status) queryParams.append('status', params.status);
       if (params?.barberId) queryParams.append('barberId', params.barberId);
+      if (params?.from) queryParams.append('from', params.from);
+      if (params?.to) queryParams.append('to', params.to);
 
       const url = `${this.baseEndpoint}/business/${businessId}`;
       const finalUrl = queryParams.toString() ? `${url}?${queryParams.toString()}` : url;
