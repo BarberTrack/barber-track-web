@@ -12,7 +12,7 @@ export const analyticsService = {
         period
       }
     });
-    return response.data as DashboardResponse;
+    return response as DashboardResponse;
   },
 
   // Get reports data
@@ -32,6 +32,6 @@ export const analyticsService = {
         groupBy
       }
     });
-    return response.data as ReportResponse;
+    return response as ReportResponse;
   }
 };

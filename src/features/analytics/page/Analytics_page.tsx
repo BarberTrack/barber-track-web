@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { useParams } from 'react-router';
 import { useAnalyticsDashboard, useAnalyticsReports, useAnalyticsFilters } from '../hooks';
 import {
   AnalyticsHeader,
@@ -11,10 +12,10 @@ import {
 
 
 export const Analytics_page = () => {
-  const [businessId] = useState<string>('5c7cb59c-18c5-4a55-b6ee-9461147bb2f9');
+  const { businessId } = useParams<{ businessId: string }>();
   
-  const { data: dashboardData, loading: dashboardLoading, getDashboard } = useAnalyticsDashboard(businessId);
-  const { data: reportsData, loading: reportsLoading, getReports } = useAnalyticsReports(businessId);
+  const { data: dashboardData, loading: dashboardLoading, getDashboard } = useAnalyticsDashboard(businessId || '');
+  const { data: reportsData, loading: reportsLoading, getReports } = useAnalyticsReports(businessId || '');
   const { 
     period, 
     reportType, 
@@ -25,8 +26,6 @@ export const Analytics_page = () => {
     updateDateRange, 
     updateGroupBy 
   } = useAnalyticsFilters();
-
-
 
   useEffect(() => {
     if (businessId) {
@@ -60,6 +59,17 @@ export const Analytics_page = () => {
   const handleGroupByChange = (newGroupBy: 'week' | 'month') => {
     updateGroupBy(newGroupBy);
   };
+
+  if (!businessId) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-red-600">Error</h2>
+          <p className="text-gray-600 mt-2">ID de negocio no proporcionado</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100 p-4 sm:p-6 lg:p-8">

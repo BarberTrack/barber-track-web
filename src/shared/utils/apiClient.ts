@@ -16,7 +16,7 @@ export interface ApiError {
 
 class ApiClient {
   private instance: AxiosInstance;
-  private readonly baseURL = import.meta.env.VITE_API_URL;
+  private readonly baseURL = import.meta.env.VITE_API_URL || 'https://barbertrack-gateway.up.railway.app/api/v1';
   private getTokenCallback?: () => string | null;
   private onUnauthorizedCallback?: () => void;
 

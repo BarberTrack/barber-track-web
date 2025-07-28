@@ -84,9 +84,7 @@ export const FiltersPanel = ({
               <SelectItem value="revenue" className="text-gray-200 focus:bg-blue-900">
                 Ingresos
               </SelectItem>
-              <SelectItem value="services" className="text-gray-200 focus:bg-blue-900">
-                Servicios
-              </SelectItem>
+
             </SelectContent>
           </Select>
         </div>
