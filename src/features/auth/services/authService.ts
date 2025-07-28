@@ -1,11 +1,16 @@
 import { apiClient } from '@/shared/utils/apiClient';
-import type { LoginCredentials, AuthResponse } from '@/shared/types/auth.types';
+import type { LoginCredentials, AuthResponse, RegisterCredentials, RegisterResponse } from '@/shared/types/auth.types';
 
 class AuthService {
   private readonly baseEndpoint = '/auth';
 
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     const response = await apiClient.post<AuthResponse>(`${this.baseEndpoint}/login/email`, credentials);
+    return response.data;
+  }
+
+  async register(credentials: RegisterCredentials): Promise<RegisterResponse> {
+    const response = await apiClient.post<RegisterResponse>(`${this.baseEndpoint}/register/email`, credentials);
     return response.data;
   }
 

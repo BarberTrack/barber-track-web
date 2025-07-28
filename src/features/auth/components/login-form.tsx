@@ -120,18 +120,22 @@ export function LoginForm({
                   O ingresa con
                 </span>
               </div>
-              {/* <div className="text-center text-sm">
-                No tienes una cuenta?{" "}
-                <a href="#" className="underline underline-offset-4">
+              <div className="text-center text-sm">
+                ¿No tienes una cuenta?{" "}
+                <button 
+                  type="button"
+                  onClick={() => navigate('/register')}
+                  className="underline underline-offset-4 hover:text-primary"
+                >
                   Crea una cuenta
-                </a>
-              </div> */}
+                </button>
+              </div>
             </div>
           </form>
           <div className="bg-muted relative hidden md:block">
             <img
-              src="/placeholder.svg"
-              alt="Image"
+              src="/playstore.png"
+              alt="BarberTrack App"
               className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
             />
           </div>

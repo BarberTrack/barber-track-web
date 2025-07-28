@@ -8,6 +8,7 @@ import { Provider } from 'react-redux';
 import './index.css'
 import { ThemeProvider } from "./core/theme/components/theme-provider"
 import { AuthPage } from "@/features/auth/pages/AuthPage"
+import { RegisterPage } from "@/features/auth/pages/RegisterPage"
 import { store } from "./app/store";
 import { configureApiClient } from './shared/utils/configureApiClient';
 import { HomePage } from "./features/home/pages/HomePage";
@@ -25,6 +26,14 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <AuthPage />,
+  },
+  {
+    path: "/auth",
+    element: <AuthPage />,
+  },
+  {
+    path: "/register",
+    element: <RegisterPage />,
   },
   {
     path: "/home",
