@@ -3,8 +3,8 @@ import type { ServiceTrendsResponse, PromotionPredictionsResponse } from '../typ
 
 class MLService {
 
-  private readonly SERVICE_TRENDS_BASE_URL = import.meta.env.VITE_SERVICE_TRENDS_BASE_URL;
-  private readonly PROMOTIONS_BASE_URL = import.meta.env.VITE_PROMOTIONS_BASE_URL;
+  private readonly SERVICE_TRENDS_BASE_URL = import.meta.env.VITE_SERVICE_TRENDS_BASE_URL || 'https://service-trends-production.up.railway.app/api/ml';
+  private readonly PROMOTIONS_BASE_URL = import.meta.env.VITE_PROMOTIONS_BASE_URL || 'https://ml-promotions-production.up.railway.app/api/ml';
 
   /**
    * Obtiene las tendencias de servicios para un negocio específico
@@ -24,7 +24,7 @@ class MLService {
       
       return response.data;
     } catch (error) {
-      console.error('Error fetching service trends:', error);
+      console.error('❌ ML Service - Error fetching service trends:', error);
       throw new Error('Error al obtener las tendencias de servicios');
     }
   }
@@ -48,7 +48,7 @@ class MLService {
       
       return response.data;
     } catch (error) {
-      console.error('Error fetching promotion predictions:', error);
+      console.error('❌ ML Service - Error fetching promotion predictions:', error);
       throw new Error('Error al obtener las predicciones de promociones');
     }
   }
@@ -71,7 +71,7 @@ class MLService {
         promotionPredictions,
       };
     } catch (error) {
-      console.error('Error fetching ML data:', error);
+      console.error('❌ ML Service - Error fetching ML data:', error);
       throw new Error('Error al obtener los datos de ML');
     }
   }

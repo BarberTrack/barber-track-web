@@ -37,6 +37,22 @@ export const PromotionActivation = ({ promotions, serviceAnalysis, loading = fal
     );
   }
 
+  if (!promotions || promotions.length === 0) {
+    return (
+      <Card className="bg-gray-900 border-blue-800">
+        <CardContent className="flex items-center justify-center h-64">
+          <div className="text-center space-y-4">
+            <AlertCircle className="h-12 w-12 text-yellow-500 mx-auto" />
+            <p className="text-gray-400">No hay promociones disponibles</p>
+            <p className="text-sm text-gray-500">
+              El sistema no ha generado recomendaciones de promociones para este negocio.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("es-ES", {
       day: "2-digit",
@@ -144,95 +160,97 @@ export const PromotionActivation = ({ promotions, serviceAnalysis, loading = fal
       </Card>
 
       {/* Service Analysis */}
-      <Card className="bg-gray-900 border-blue-800">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-white">
-            <Eye className="h-5 w-5 text-purple-500" />
-            Análisis Detallado por Servicio
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {serviceAnalysis.map((service) => (
-              <div key={service.serviceId} className="border border-blue-800/50 rounded-lg p-4 bg-gray-800">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-medium text-white">
-                    {service.serviceName.replace(/Servicio\s+/, '')}
-                  </h3>
-                  <Users className="h-4 w-4 text-blue-400" />
-                </div>
-
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-400">Demanda Actual</span>
-                    <Badge className={getDemandColor(service.currentDemand)}>
-                      {service.currentDemand}
-                    </Badge>
+      {serviceAnalysis && serviceAnalysis.length > 0 && (
+        <Card className="bg-gray-900 border-blue-800">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-white">
+              <Eye className="h-5 w-5 text-purple-500" />
+              Análisis Detallado por Servicio
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {serviceAnalysis.map((service) => (
+                <div key={service.serviceId} className="border border-blue-800/50 rounded-lg p-4 bg-gray-800">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="font-medium text-white">
+                      {service.serviceName.replace(/Servicio\s+/, '')}
+                    </h3>
+                    <Users className="h-4 w-4 text-blue-400" />
                   </div>
 
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-400">Acción Recomendada</span>
-                    <Badge className={getActionColor(service.recommendedAction)}>
-                      {service.recommendedAction}
-                    </Badge>
-                  </div>
-
-                  {service.avgOccupancy !== null && (
+                  <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-400">Ocupación Promedio</span>
-                      <span className="text-white font-medium">
-                        {(service.avgOccupancy * 100).toFixed(1)}%
-                      </span>
+                      <span className="text-sm text-gray-400">Demanda Actual</span>
+                      <Badge className={getDemandColor(service.currentDemand)}>
+                        {service.currentDemand}
+                      </Badge>
                     </div>
-                  )}
 
-                  {service.avgPrice !== null && (
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-400">Precio Promedio</span>
-                      <span className="text-white font-medium">
-                        ${service.avgPrice.toFixed(2)}
-                      </span>
+                      <span className="text-sm text-gray-400">Acción Recomendada</span>
+                      <Badge className={getActionColor(service.recommendedAction)}>
+                        {service.recommendedAction}
+                      </Badge>
                     </div>
-                  )}
 
-                  {service.potentialPromotion && (
-                    <div className="mt-3 p-2 bg-green-900/20 border border-green-600/50 rounded">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-400" />
-                        <span className="text-sm text-green-300">Promoción potencial disponible</span>
+                    {service.avgOccupancy !== null && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-400">Ocupación Promedio</span>
+                        <span className="text-white font-medium">
+                          {(service.avgOccupancy * 100).toFixed(1)}%
+                        </span>
                       </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
+                    )}
 
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="text-center p-4 bg-gray-800 border border-blue-800/50 rounded">
-              <TrendingUp className="h-6 w-6 mx-auto mb-2 text-green-500" />
-              <p className="text-sm text-gray-400">Alta Demanda</p>
-              <p className="text-xl font-bold text-white">
-                {serviceAnalysis.filter(s => s.currentDemand === 'high').length}
-              </p>
+                    {service.avgPrice !== null && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-400">Precio Promedio</span>
+                        <span className="text-white font-medium">
+                          ${service.avgPrice.toFixed(2)}
+                        </span>
+                      </div>
+                    )}
+
+                    {service.potentialPromotion && (
+                      <div className="mt-3 p-2 bg-green-900/20 border border-green-600/50 rounded">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="h-4 w-4 text-green-400" />
+                          <span className="text-sm text-green-300">Promoción potencial disponible</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
-            <div className="text-center p-4 bg-gray-800 border border-blue-800/50 rounded">
-              <Target className="h-6 w-6 mx-auto mb-2 text-yellow-500" />
-              <p className="text-sm text-gray-400">Demanda Media</p>
-              <p className="text-xl font-bold text-white">
-                {serviceAnalysis.filter(s => s.currentDemand === 'medium').length}
-              </p>
+
+            <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="text-center p-4 bg-gray-800 border border-blue-800/50 rounded">
+                <TrendingUp className="h-6 w-6 mx-auto mb-2 text-green-500" />
+                <p className="text-sm text-gray-400">Alta Demanda</p>
+                <p className="text-xl font-bold text-white">
+                  {serviceAnalysis.filter(s => s.currentDemand === 'high').length}
+                </p>
+              </div>
+              <div className="text-center p-4 bg-gray-800 border border-blue-800/50 rounded">
+                <Target className="h-6 w-6 mx-auto mb-2 text-yellow-500" />
+                <p className="text-sm text-gray-400">Demanda Media</p>
+                <p className="text-xl font-bold text-white">
+                  {serviceAnalysis.filter(s => s.currentDemand === 'medium').length}
+                </p>
+              </div>
+              <div className="text-center p-4 bg-gray-800 border border-blue-800/50 rounded">
+                <AlertCircle className="h-6 w-6 mx-auto mb-2 text-red-500" />
+                <p className="text-sm text-gray-400">Baja Demanda</p>
+                <p className="text-xl font-bold text-white">
+                  {serviceAnalysis.filter(s => s.currentDemand === 'low').length}
+                </p>
+              </div>
             </div>
-            <div className="text-center p-4 bg-gray-800 border border-blue-800/50 rounded">
-              <AlertCircle className="h-6 w-6 mx-auto mb-2 text-red-500" />
-              <p className="text-sm text-gray-400">Baja Demanda</p>
-              <p className="text-xl font-bold text-white">
-                {serviceAnalysis.filter(s => s.currentDemand === 'low').length}
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }; 

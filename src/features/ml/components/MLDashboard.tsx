@@ -580,43 +580,57 @@ export default function MLDashboard({ businessId, businessName }: MLDashboardPro
                     <CardTitle className="text-white">Análisis de Estrategia de Negocio</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                      <div className="text-center p-4 border border-blue-800/50 rounded-lg bg-gray-800">
-                        <Users className="h-8 w-8 mx-auto mb-2 text-blue-500" />
-                        <p className="text-2xl font-bold text-white">
-                          {promotionPredictions.analytics.businessAnalysis.totalServices}
-                        </p>
-                        <p className="text-sm text-gray-400">Total Servicios</p>
-                      </div>
-                      <div className="text-center p-4 border border-blue-800/50 rounded-lg bg-gray-800">
-                        <TrendingUp className="h-8 w-8 mx-auto mb-2 text-green-500" />
-                        <p className="text-2xl font-bold text-white">
-                          {promotionPredictions.analytics.businessAnalysis.servicesWithHighDemand}
-                        </p>
-                        <p className="text-sm text-gray-400">Alta Demanda</p>
-                      </div>
-                      <div className="text-center p-4 border border-blue-800/50 rounded-lg bg-gray-800">
-                        <Activity className="h-8 w-8 mx-auto mb-2 text-yellow-500" />
-                        <p className="text-2xl font-bold text-white">
-                          {promotionPredictions.analytics.businessAnalysis.servicesWithMediumDemand}
-                        </p>
-                        <p className="text-sm text-gray-400">Media Demanda</p>
-                      </div>
-                      <div className="text-center p-4 border border-blue-800/50 rounded-lg bg-gray-800">
-                        <AlertTriangle className="h-8 w-8 mx-auto mb-2 text-red-500" />
-                        <p className="text-2xl font-bold text-white">
-                          {promotionPredictions.analytics.businessAnalysis.servicesWithLowDemand}
-                        </p>
-                        <p className="text-sm text-gray-400">Baja Demanda</p>
-                      </div>
-                    </div>
-                    <div className="mt-6 text-center p-4 bg-purple-900/20 border border-purple-600/50 rounded-lg">
-                      <Target className="h-8 w-8 mx-auto mb-2 text-purple-500" />
-                      <p className="text-sm font-medium text-white">
-                        {promotionPredictions.analytics.businessAnalysis.recommendedStrategy}
-                      </p>
-                      <p className="text-xs text-gray-400">Estrategia Recomendada</p>
-                    </div>
+                    {(() => {
+                      // Calculate demand statistics dynamically from serviceAnalysis
+                      const serviceAnalysis = promotionPredictions.analytics.serviceAnalysis || [];
+                      const totalServices = serviceAnalysis.length;
+                      const servicesWithHighDemand = serviceAnalysis.filter(s => s.currentDemand.toLowerCase() === 'high').length;
+                      const servicesWithMediumDemand = serviceAnalysis.filter(s => s.currentDemand.toLowerCase() === 'medium').length;
+                      const servicesWithLowDemand = serviceAnalysis.filter(s => s.currentDemand.toLowerCase() === 'low').length;
+                      
+                      return (
+                        <>
+                          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div className="text-center p-4 border border-blue-800/50 rounded-lg bg-gray-800">
+                              <Users className="h-8 w-8 mx-auto mb-2 text-blue-500" />
+                              <p className="text-2xl font-bold text-white">
+                                {totalServices}
+                              </p>
+                              <p className="text-sm text-gray-400">Total Servicios</p>
+                            </div>
+                            <div className="text-center p-4 border border-blue-800/50 rounded-lg bg-gray-800">
+                              <TrendingUp className="h-8 w-8 mx-auto mb-2 text-green-500" />
+                              <p className="text-2xl font-bold text-white">
+                                {servicesWithHighDemand}
+                              </p>
+                              <p className="text-sm text-gray-400">Alta Demanda</p>
+                            </div>
+                            <div className="text-center p-4 border border-blue-800/50 rounded-lg bg-gray-800">
+                              <Activity className="h-8 w-8 mx-auto mb-2 text-yellow-500" />
+                              <p className="text-2xl font-bold text-white">
+                                {servicesWithMediumDemand}
+                              </p>
+                              <p className="text-sm text-gray-400">Media Demanda</p>
+                            </div>
+                            <div className="text-center p-4 border border-blue-800/50 rounded-lg bg-gray-800">
+                              <AlertTriangle className="h-8 w-8 mx-auto mb-2 text-red-500" />
+                              <p className="text-2xl font-bold text-white">
+                                {servicesWithLowDemand}
+                              </p>
+                              <p className="text-sm text-gray-400">Baja Demanda</p>
+                            </div>
+                          </div>
+                          
+                          <div className="mt-6 text-center p-4 bg-purple-900/20 border border-purple-600/50 rounded-lg">
+                            <Target className="h-8 w-8 mx-auto mb-2 text-purple-500" />
+                            <p className="text-sm font-medium text-white">
+                              {promotionPredictions.analytics.businessAnalysis.recommendedStrategy}
+                            </p>
+                            <p className="text-xs text-gray-400">Estrategia Recomendada</p>
+                          </div>
+                        </>
+                      );
+                    })()}
                   </CardContent>
                 </Card>
               </>

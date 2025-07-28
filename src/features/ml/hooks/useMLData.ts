@@ -59,6 +59,7 @@ export const useMLData = (businessId: string) => {
   const fetchPromotionPredictions = async (): Promise<PromotionPredictionsResponse | null> => {
     try {
       const promotionPredictions = await mlService.getPromotionPredictions(businessId);
+      
       setData(prev => ({
         ...prev,
         promotionPredictions,
