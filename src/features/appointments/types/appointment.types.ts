@@ -24,6 +24,7 @@ export interface Appointment {
   barber: AppointmentBarber;
   service: AppointmentService;
   package: AppointmentPackage | null;
+  client: AppointmentClient;
 }
 
 export type AppointmentStatus = 'scheduled' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled' | 'no_show';
@@ -53,6 +54,14 @@ export interface AppointmentBarber {
   phone: string;
   email: string;
   profileImageUrl: string | null;
+}
+
+export interface AppointmentClient {
+  id: string;
+  firstName: string;
+  lastName: string;
+  name: string;
+  email: string;
 }
 
 export interface AppointmentService {

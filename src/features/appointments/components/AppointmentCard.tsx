@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader } from '@/shared/components/shadcn/card';
 import { Badge } from '@/shared/components/shadcn/badge';
 import { Button } from '@/shared/components/shadcn/button';
-import { Calendar, Clock, User, Scissors, MapPin, Phone, DollarSign, CheckCircle, X } from 'lucide-react';
+import { Calendar, Clock, User, Scissors, MapPin, Phone, DollarSign, CheckCircle, X, Info } from 'lucide-react';
 import { AppointmentStatusBadge } from './AppointmentStatusBadge';
 import { CompleteAppointmentModal } from './CompleteAppointmentModal';
 import { CancelAppointmentModal } from './CancelAppointmentModal';
+import { ClientInfoModal } from './ClientInfoModal';
 import type { Appointment } from '../types/appointment.types';
 
 interface AppointmentCardProps {
@@ -17,6 +18,7 @@ interface AppointmentCardProps {
 export const AppointmentCard = ({ appointment, className, onAppointmentUpdate }: AppointmentCardProps) => {
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [isClientInfoModalOpen, setIsClientInfoModalOpen] = useState(false);
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('es-ES', {
@@ -63,7 +65,7 @@ export const AppointmentCard = ({ appointment, className, onAppointmentUpdate }:
       <CardContent className="space-y-4">
         {/* Información del Barbero */}
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center">
+          <div className="h-10 w-10 bg-gray-400 rounded-full flex items-center justify-center">
             {appointment.barber.profileImageUrl ? (
               <img 
                 src={appointment.barber.profileImageUrl} 
@@ -83,6 +85,27 @@ export const AppointmentCard = ({ appointment, className, onAppointmentUpdate }:
               <span>{appointment.barber.phone}</span>
             </div>
           </div>
+        </div>
+
+        {/* Información del Cliente */}
+        <div className="flex items-center gap-3 p-3 border border-gray-600 rounded-lg">
+          <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
+            <User className="h-5 w-5 text-blue-600" />
+          </div>
+          <div className="flex-1">
+            <p className="font-medium text-sm">
+              {appointment.client.name}
+            </p>
+            <p className="text-xs text-muted-foreground">Cliente</p>
+          </div>
+          <Button
+            variant="outline"
+            size="lg"
+            onClick={() => setIsClientInfoModalOpen(true)}
+            className="h-8 w-16 p-0"
+          >
+            <Info className="h-4 w-4" />
+          </Button>
         </div>
 
         {/* Información del Servicio */}
@@ -187,6 +210,13 @@ export const AppointmentCard = ({ appointment, className, onAppointmentUpdate }:
             onAppointmentUpdate();
           }
         }}
+      />
+
+      {/* Modal para información del cliente */}
+      <ClientInfoModal
+        isOpen={isClientInfoModalOpen}
+        onClose={() => setIsClientInfoModalOpen(false)}
+        client={appointment.client}
       />
     </Card>
   );
