@@ -1,11 +1,55 @@
-// Exportar todos los elementos principales de la feature analytics
-export * from './types/analytics.types';
-export * from './store/analyticsSlice';
-export * from './hooks/useAnalytics';
-export * from './services/analyticsService';
+export { Analytics_page } from './page/Analytics_page';
 
-// Exportar componente principal
-export { AnalyticsPage } from './page/AnalyticsPage';
+export {
+  AnalyticsHeader,
+  FiltersPanel,
+  TrendsSection,
+  ServicesAnalytics,
+  BarbersRanking,
+  PeakHoursChart,
+} from './components';
 
-// Exportar componentes auxiliares
-export * from './components'; 
+export {
+  useAnalyticsDashboard,
+  useAnalyticsReports,
+  useAnalyticsFilters,
+  useChartData,
+} from './hooks';
+
+export { analyticsService } from './services/analyticsService';
+
+export {
+  fetchDashboard,
+  fetchReports,
+  setPeriod,
+  setReportType,
+  setDateRange,
+  setGroupBy,
+  clearDashboardError,
+  clearReportsError,
+  clearAllErrors,
+} from './store/analyticsSlice';
+
+export type {
+  DashboardData,
+  ReportData,
+  PopularService,
+  TopBarber,
+  Trends,
+  PeriodInfo,
+  ReportFilters,
+  AppointmentData,
+  RevenueData,
+  ServiceData,
+  PeakHour,
+  ReportSummary,
+  ChartDataPoint,
+  DashboardResponse,
+  ReportResponse,
+  AnalyticsState,
+  AnalyticsHeaderProps,
+  TrendsSectionProps,
+  ServicesAnalyticsProps,
+  BarbersRankingProps,
+  FiltersPanelProps,
+} from './types'; 

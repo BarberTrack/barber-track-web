@@ -162,6 +162,29 @@ class BusinessServices {
         const response = await apiClient.delete<DeletePortfolioImageResponse>(`${this.businessEndpoint}/media/${imageId}`);
         return response.data;
     }
+
+    // Service Image methods
+    async uploadServiceImage(serviceId: string, file: File): Promise<{ message: string; success: boolean }> {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await apiClient.getInstance().post(
+            `${this.servicesEndpoint}/${serviceId}/image`,
+            formData,
+            {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            }
+        );
+        
+        return response.data;
+    }
+
+    async deleteServiceImage(serviceId: string): Promise<{ message: string; serviceId: string }> {
+        const response = await apiClient.delete<{ message: string; serviceId: string }>(`${this.servicesEndpoint}/${serviceId}/image`);
+        return response.data;
+    }
 }
 
 export const businessServices = new BusinessServices();

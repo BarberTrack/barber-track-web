@@ -1,28 +1,130 @@
-import { useNavigate } from 'react-router';
+import { useNavigate, useLocation, useParams } from 'react-router';
 import { Button } from './shadcn/button';
 import { ArrowLeft, LogOut, Scissors } from 'lucide-react';
+import { useAppSelector } from '../../app/hooks';
+import { selectBusinesses } from '../../features/home/store/businessSlice';
+import { selectBusiness } from '../../features/dashboard/store/businessSlice';
 
 interface NavbarProps {
   showBackButton?: boolean;
   title?: string;
+  subtitle?: string;
+  onBack?: () => void;
+  backButtonText?: string;
+  showLogout?: boolean;
+  variant?: 'default' | 'dashboard';
 }
 
-export const Navbar = ({ showBackButton = true, title }: NavbarProps) => {
+export const Navbar = ({ 
+  showBackButton = true, 
+  title, 
+  subtitle,
+  onBack,
+  backButtonText = "Volver",
+  showLogout = true,
+  variant = 'default'
+}: NavbarProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { businessId } = useParams<{ businessId: string }>();
+  
+  // Get businesses from different stores
+  const businesses = useAppSelector(selectBusinesses);
+  const currentBusiness = useAppSelector(selectBusiness);
+  
+  // Function to get current business name
+  const getCurrentBusinessName = () => {
+    // Don't show business name on home page
+    if (location.pathname === '/' || location.pathname === '/home') {
+      return null;
+    }
+    
+    // If we have businessId in params, try to get it from dashboard store first
+    if (businessId && currentBusiness) {
+      return currentBusiness.name;
+    }
+    
+    // If we have businessId but no current business, try to find it in businesses list
+    if (businessId && businesses.length > 0) {
+      const business = businesses.find(b => b.id === businessId);
+      return business?.name || null;
+    }
+    
+    // If there's only one business and no businessId in params, show it
+    if (businesses.length === 1 && !businessId) {
+      return businesses[0].name;
+    }
+    
+    return null;
+  };
+
+  const currentBusinessName = getCurrentBusinessName();
 
   const handleGoHome = () => {
     navigate('/');
   };
 
+  const handleBack = () => {
+    if (onBack) {
+      onBack();
+    } else {
+      handleGoHome();
+    }
+  };
+
   const handleLogout = () => {
-    // Eliminar token y datos de usuario del localStorage
     localStorage.removeItem('token');
     localStorage.removeItem('barbertrack_user');
-    
-    // Navegar a la página de login o home
     navigate('/');
   };
 
+  // Estilos para variante dashboard
+  if (variant === 'dashboard') {
+    return (
+      <div className="shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center space-x-4">
+              {showBackButton && (
+                <Button variant="ghost" size="sm" onClick={handleBack}>
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  {backButtonText}
+                </Button>
+              )}
+              <Scissors className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+              <div>
+                <div className="flex items-center gap-3">
+                  <h1 className="text-2xl font-bold text-blue-400">
+                    {title || 'BarberTrack'}
+                  </h1>
+                  {currentBusinessName && (
+                    <span className="text-lg text-blue-300 font-medium">- {currentBusinessName}</span>
+                  )}
+                </div>
+                {subtitle && (
+                  <p className="text-sm text-gray-300">{subtitle}</p>
+                )}
+              </div>
+            </div>
+
+            {showLogout && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleLogout}
+                className="flex items-center gap-2 text-red-600 hover:text-red-700 border-red-200 hover:border-red-300 dark:text-red-400 dark:hover:text-red-300"
+              >
+                <LogOut className="h-4 w-4" />
+                Cerrar Sesión
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Estilos para variante default
   return (
     <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -32,32 +134,44 @@ export const Navbar = ({ showBackButton = true, title }: NavbarProps) => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={handleGoHome}
+              onClick={handleBack}
               className="flex items-center gap-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
             >
               <ArrowLeft className="h-4 w-4" />
-              Inicio
+              {backButtonText}
             </Button>
           )}
           
           <div className="flex items-center gap-2">
             <Scissors className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-            <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-              {title || 'BarberTrack'}
-            </h1>
+            <div>
+              <div className="flex items-center gap-3">
+                <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                  {title || 'BarberTrack'}
+                </h1>
+                {currentBusinessName && (
+                  <span className="text-lg text-blue-600 dark:text-blue-400 font-medium">- {currentBusinessName}</span>
+                )}
+              </div>
+              {subtitle && (
+                <p className="text-sm text-gray-600 dark:text-gray-400">{subtitle}</p>
+              )}
+            </div>
           </div>
         </div>
 
         {/* Lado derecho - Botón de cerrar sesión */}
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleLogout}
-          className="flex items-center gap-2 text-red-600 hover:text-red-700 border-red-200 hover:border-red-300 dark:text-red-400 dark:hover:text-red-300"
-        >
-          <LogOut className="h-4 w-4" />
-          Cerrar Sesión
-        </Button>
+        {showLogout && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleLogout}
+            className="flex items-center gap-2 text-red-600 hover:text-red-700 border-red-200 hover:border-red-300 dark:text-red-400 dark:hover:text-red-300"
+          >
+            <LogOut className="h-4 w-4" />
+            Cerrar Sesión
+          </Button>
+        )}
       </div>
     </nav>
   );

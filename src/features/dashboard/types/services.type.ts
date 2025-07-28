@@ -16,7 +16,7 @@ export interface Service {
     description:       string;
     price:             string;
     durationMinutes:   number;
-    imageUrl:          null;
+    imageUrl:          string | null;
     isActive:          boolean;
     barberAssignments: BarberAssignment[];
     createdAt:         string;

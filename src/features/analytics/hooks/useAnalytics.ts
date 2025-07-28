@@ -1,238 +1,166 @@
-import { useCallback, useEffect, useMemo } from 'react';
+
 import { useAppDispatch, useAppSelector } from '@/app/hooks';
 import {
-  fetchDashboardData,
-  fetchServiceTrends,
-  fetchCompleteAnalytics,
+  fetchDashboard,
+  fetchReports,
+  setPeriod,
+  setReportType,
+  setDateRange,
+  setGroupBy,
   clearDashboardError,
-  clearServiceTrendsError,
+  clearReportsError,
   clearAllErrors,
-  clearAllData,
-  setCurrentBusinessId,
-  selectAnalytics,
 } from '../store/analyticsSlice';
-import type { AnalyticsQueryParams } from '../types/analytics.types';
-import { ToastAlert } from '@/shared/components/ToastAlert';
+import type { RootState } from '@/app/store';
 
-export const useAnalytics = (businessId?: string) => {
+// Hook for dashboard data
+export const useAnalyticsDashboard = (businessId: string) => {
   const dispatch = useAppDispatch();
-  const {
-    dashboardData,
-    isDashboardLoading,
-    dashboardError,
-    serviceTrendsData,
-    isServiceTrendsLoading,
-    serviceTrendsError,
-    currentBusinessId,
-    lastFetchTime,
-  } = useAppSelector(selectAnalytics);
+  const { data, loading, error } = useAppSelector((state: RootState) => state.analytics.dashboard);
+  const { period } = useAppSelector((state: RootState) => state.analytics.filters);
 
-  // Parámetros fijos según los requisitos
-  const defaultParams: AnalyticsQueryParams = useMemo(() => ({
-    period: 'year',
-    includeZoneComparison: true,
-  }), []);
+  const getDashboard = (newPeriod?: 'week' | 'month') => {
+    const periodToUse = newPeriod || period;
+    dispatch(fetchDashboard({ businessId, period: periodToUse }));
+  };
 
-  // Verificar si hay token válido
-  const hasValidToken = useCallback(() => {
-    const token = localStorage.getItem('barbertrack_token');
-    if (!token) {
-      ToastAlert.error('Sesión expirada', 'Por favor inicia sesión nuevamente');
-      window.location.href = '/';
-      return false;
-    }
-    return true;
-  }, []);
-
-  // Cargar datos del dashboard
-  const loadDashboardData = useCallback(async (
-    id: string,
-    params?: AnalyticsQueryParams
-  ) => {
-    if (!hasValidToken()) return;
-    
-    if (!id || id.trim() === '') {
-      ToastAlert.error('Error', 'Business ID es requerido');
-      return;
-    }
-
-    try {
-      const queryParams = params || defaultParams;
-      const result = await dispatch(fetchDashboardData({ 
-        businessId: id, 
-        params: queryParams 
-      })).unwrap();
-      return result;
-    } catch (error: any) {
-      ToastAlert.error('Error', error || 'Error al cargar datos del dashboard');
-      throw error;
-    }
-  }, [dispatch, defaultParams, hasValidToken]);
-
-  // Cargar tendencias de servicios
-  const loadServiceTrends = useCallback(async (
-    id: string, 
-    params?: AnalyticsQueryParams
-  ) => {
-    if (!hasValidToken()) return;
-    
-    if (!id || id.trim() === '') {
-      ToastAlert.error('Error', 'Business ID es requerido');
-      return;
-    }
-
-    try {
-      const queryParams = params || defaultParams;
-      const result = await dispatch(fetchServiceTrends({ 
-        businessId: id, 
-        params: queryParams 
-      })).unwrap();
-      return result;
-    } catch (error: any) {
-      ToastAlert.error('Error', error || 'Error al cargar tendencias de servicios');
-      throw error;
-    }
-  }, [dispatch, defaultParams, hasValidToken]);
-
-  // Cargar todos los datos de analytics
-  const loadCompleteAnalytics = useCallback(async (
-    id: string, 
-    params?: AnalyticsQueryParams
-  ) => {
-    if (!hasValidToken()) return;
-    
-    if (!id || id.trim() === '') {
-      ToastAlert.error('Error', 'Business ID es requerido');
-      return;
-    }
-
-    try {
-      const queryParams = params || defaultParams;
-      const result = await dispatch(fetchCompleteAnalytics({ 
-        businessId: id, 
-        params: queryParams 
-      })).unwrap();
-      return result;
-    } catch (error: any) {
-      ToastAlert.error('Error', error || 'Error al cargar datos de analytics');
-      throw error;
-    }
-  }, [dispatch, defaultParams, hasValidToken]);
-
-  // Recargar todos los datos
-  const reloadAnalytics = useCallback((params?: AnalyticsQueryParams) => {
-    if (!businessId || businessId.trim() === '') {
-      return;
-    }
-    
-    loadCompleteAnalytics(businessId, params);
-  }, [businessId, loadCompleteAnalytics]);
-
-  // Limpiar errores específicos
-  const clearDashboardErrors = useCallback(() => {
+  const clearError = () => {
     dispatch(clearDashboardError());
-  }, [dispatch]);
-
-  const clearServiceTrendsErrors = useCallback(() => {
-    dispatch(clearServiceTrendsError());
-  }, [dispatch]);
-
-  const clearErrors = useCallback(() => {
-    dispatch(clearAllErrors());
-  }, [dispatch]);
-
-  // Limpiar todos los datos
-  const clearData = useCallback(() => {
-    dispatch(clearAllData());
-  }, [dispatch]);
-
-  // Actualizar business ID actual
-  const updateCurrentBusinessId = useCallback((id: string) => {
-    dispatch(setCurrentBusinessId(id));
-  }, [dispatch]);
-
-  // Estados combinados para la UI
-  const isLoading = isDashboardLoading || isServiceTrendsLoading;
-  const hasError = !!dashboardError || !!serviceTrendsError;
-  const hasData = !!dashboardData && !!serviceTrendsData;
-
-  // Información del negocio desde los datos de tendencias
-  const businessInfo = useMemo(() => {
-    return serviceTrendsData?.businessData || null;
-  }, [serviceTrendsData]);
-
-  // Verificar si los datos necesitan actualizarse
-  const needsRefresh = useMemo(() => {
-    if (!businessId || !lastFetchTime) return true;
-    if (currentBusinessId !== businessId) return true;
-    
-    // Refrescar si los datos tienen más de 5 minutos
-    const lastFetch = new Date(lastFetchTime);
-    const now = new Date();
-    const diffMinutes = (now.getTime() - lastFetch.getTime()) / (1000 * 60);
-    
-    return diffMinutes > 5;
-  }, [businessId, currentBusinessId, lastFetchTime]);
-
-  // Efecto para cargar datos automáticamente
-  useEffect(() => {
-    if (businessId && businessId.trim() !== '') {
-      // Actualizar el business ID actual
-      if (currentBusinessId !== businessId) {
-        updateCurrentBusinessId(businessId);
-      }
-      
-      // Cargar datos si es necesario
-      if (needsRefresh) {
-        loadCompleteAnalytics(businessId);
-      }
-    }
-  }, [businessId, currentBusinessId, needsRefresh, loadCompleteAnalytics, updateCurrentBusinessId]);
-
-  // Limpiar datos al desmontar si cambia el business ID
-  useEffect(() => {
-    return () => {
-      if (businessId && currentBusinessId && businessId !== currentBusinessId) {
-        clearData();
-      }
-    };
-  }, [businessId, currentBusinessId, clearData]);
+  };
 
   return {
-    // Estado de los datos
-    dashboardData,
-    serviceTrendsData,
-    businessInfo,
-    
-    // Estados de carga
-    isDashboardLoading,
-    isServiceTrendsLoading,
-    isLoading,
-    
-    // Estados de error
-    dashboardError,
-    serviceTrendsError,
-    hasError,
-    
-    // Estados combinados
-    hasData,
-    needsRefresh,
-    
-    // Metadatos
-    currentBusinessId,
-    lastFetchTime,
-    
-    // Acciones de carga
-    loadDashboardData,
-    loadServiceTrends,
-    loadCompleteAnalytics,
-    reloadAnalytics,
-    
-    // Acciones de limpieza
-    clearDashboardErrors,
-    clearServiceTrendsErrors,
-    clearErrors,
-    clearData,
-    updateCurrentBusinessId,
+    data,
+    loading,
+    error,
+    period,
+    getDashboard,
+    clearError,
   };
-}; 
+};
+
+// Hook for reports data
+export const useAnalyticsReports = (businessId: string) => {
+  const dispatch = useAppDispatch();
+  const { data, loading, error } = useAppSelector((state: RootState) => state.analytics.reports);
+  const { reportType, dateRange, groupBy } = useAppSelector((state: RootState) => state.analytics.filters);
+
+  const getReports = (options?: {
+    type?: 'appointments' | 'revenue' | 'services';
+    from?: string;
+    to?: string;
+    groupBy?: 'week' | 'month';
+  }) => {
+    const params = {
+      businessId,
+      type: options?.type || reportType,
+      from: options?.from || dateRange.from,
+      to: options?.to || dateRange.to,
+      groupBy: options?.groupBy || groupBy,
+    };
+    
+    dispatch(fetchReports(params));
+  };
+
+  const clearError = () => {
+    dispatch(clearReportsError());
+  };
+
+  return {
+    data,
+    loading,
+    error,
+    reportType,
+    dateRange,
+    groupBy,
+    getReports,
+    clearError,
+  };
+};
+
+// Hook for managing filters
+export const useAnalyticsFilters = () => {
+  const dispatch = useAppDispatch();
+  const filters = useAppSelector((state: RootState) => state.analytics.filters);
+
+  const updatePeriod = (period: 'week' | 'month') => {
+    dispatch(setPeriod(period));
+  };
+
+  const updateReportType = (type: 'appointments' | 'revenue' | 'services') => {
+    dispatch(setReportType(type));
+  };
+
+  const updateDateRange = (range: { from: string; to: string }) => {
+    dispatch(setDateRange(range));
+  };
+
+  const updateGroupBy = (groupBy: 'week' | 'month') => {
+    dispatch(setGroupBy(groupBy));
+  };
+
+  const clearErrors = () => {
+    dispatch(clearAllErrors());
+  };
+
+  return {
+    ...filters,
+    updatePeriod,
+    updateReportType,
+    updateDateRange,
+    updateGroupBy,
+    clearErrors,
+  };
+};
+
+// Hook for transforming chart data
+export const useChartData = () => {
+  const formatChartData = (data: any[], type: 'line' | 'bar' | 'pie' = 'line') => {
+    if (!data || data.length === 0) return [];
+
+    switch (type) {
+      case 'line':
+      case 'bar':
+        return data.map((item) => ({
+          name: item.label ? new Date(item.label).toLocaleDateString('es-ES', { 
+            month: 'short', 
+            day: 'numeric' 
+          }) : item.serviceName || 'N/A',
+          value: item.value || item.revenue || item.totalAppointments || 0,
+          revenue: item.revenue || 0,
+          appointments: item.totalAppointments || item.count || 0,
+        }));
+      
+      case 'pie':
+        return data.map((item, index) => ({
+          name: item.serviceName || item.barberName || `Item ${index + 1}`,
+          value: item.revenue || item.totalAppointments || item.value || 0,
+          fill: `hsl(${200 + index * 30}, 70%, 50%)`,
+        }));
+      
+      default:
+        return data;
+    }
+  };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('es-MX', {
+      style: 'currency',
+      currency: 'MXN',
+    }).format(amount);
+  };
+
+  const formatPercentage = (value: number) => {
+    return `${value.toFixed(1)}%`;
+  };
+
+  const formatNumber = (value: number) => {
+    return new Intl.NumberFormat('es-MX').format(value);
+  };
+
+  return {
+    formatChartData,
+    formatCurrency,
+    formatPercentage,
+    formatNumber,
+  };
+};

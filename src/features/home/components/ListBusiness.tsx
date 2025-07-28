@@ -13,48 +13,50 @@ export const ListBusiness = () => {
     };
     return (
         <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  gap-4 md:gap-6 p-4 md:p-8 max-w-7xl mx-auto">
                 {businesses.map((barberia) => (
-                    <Card className="hover:shadow-lg transition-shadow duration-300 cursor-pointer group" key={barberia.id} onClick={() => handleCardClick(barberia.id)}    >
-                        <div className="relative h-48 overflow-hidden rounded-t-lg">
+                    <Card className="hover:shadow-lg transition-shadow duration-300 cursor-pointer group max-w-sm mx-auto w-full" key={barberia.id} onClick={() => handleCardClick(barberia.id)}    >
+                        <div className="relative h-40 overflow-hidden rounded-t-lg">
                             {barberia.galleryImages === null ? <>
-                                <p>sin imagen</p>
+                                <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                                    <p className="text-gray-500 text-sm">sin imagen</p>
+                                </div>
                             </> : <>
                                 <img
                                     src={barberia.galleryImages[0].url}
                                     alt={barberia.name}
-                                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                    className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
                                 />
                             </>}
 
-                            <div className="absolute top-4 right-4">
-                                <Badge className="bg-white text-gray-900 shadow-sm">
+                            <div className="absolute top-2 right-2">
+                                <Badge className="bg-white text-gray-900 shadow-sm text-xs">
                                     <Star className="w-3 h-3 mr-1 fill-yellow-400 text-yellow-400" />
                                     {barberia.ratingAverage}
                                 </Badge>
                             </div>
                         </div>
-                        <CardHeader>
-                            <CardTitle className="text-xl text-blue-900">{barberia.name}</CardTitle>
-                            <CardDescription className="text-sm text-gray-600">{barberia.description}</CardDescription>
+                        <CardHeader className="pb-2 px-3 pt-3">
+                            <CardTitle className="text-sm md:text-base text-blue-900 line-clamp-1">{barberia.name}</CardTitle>
+                            <CardDescription className="text-xs text-gray-600 line-clamp-2">{barberia.description}</CardDescription>
                         </CardHeader>
-                        <CardContent>
-                            <div className="space-y-2 text-sm text-gray-600">
+                        <CardContent className="pt-2 px-3 pb-3">
+                            <div className="space-y-1.5 text-xs text-gray-600">
                                 <div className="flex items-center">
-                                    <MapPin className="w-4 h-4 mr-2 text-blue-600" />
+                                    <MapPin className="w-3 h-3 mr-1.5 text-blue-600 flex-shrink-0" />
                                     <span className="truncate">{barberia.address}</span>
                                 </div>
                                 <div className="flex items-center">
-                                    <Phone className="w-4 h-4 mr-2 text-blue-600" />
-                                    <span>{barberia.phone}</span>
+                                    <Phone className="w-3 h-3 mr-1.5 text-blue-600 flex-shrink-0" />
+                                    <span className="truncate">{barberia.phone}</span>
                                 </div>
                                 <div className="flex items-center">
-                                    <Mail className="w-4 h-4 mr-2 text-blue-600" />
+                                    <Mail className="w-3 h-3 mr-1.5 text-blue-600 flex-shrink-0" />
                                     <span className="truncate">{barberia.email}</span>
                                 </div>
-                                <div className="flex items-center justify-between pt-2">
-                                    <Badge variant="secondary">{barberia.totalReviews} reseñas</Badge>
-                                    <Badge className="bg-green-100 text-green-800">Activa</Badge>
+                                <div className="flex items-center justify-between pt-1">
+                                    <Badge variant="secondary" className="text-xs px-2 py-0.5">{barberia.totalReviews} reseñas</Badge>
+                                    <Badge className="bg-green-100 text-green-800 text-xs px-2 py-0.5">Activa</Badge>
                                 </div>
                             </div>
                         </CardContent>
