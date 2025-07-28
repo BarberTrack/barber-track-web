@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import type { AuthState, LoginCredentials, User } from '../../../shared/types/auth.types';
+import type { AuthState, LoginCredentials, User, RegisterCredentials } from '../../../shared/types/auth.types';
 import { authService } from '../services/authService';
 
 const initialState: AuthState = {
@@ -9,6 +9,8 @@ const initialState: AuthState = {
   isLoading: false,
   error: null,
   isAuthenticated: false,
+  isRegistering: false,
+  registerSuccess: false,
 };
 
 // Async thunk para login
@@ -40,6 +42,38 @@ export const loginUser = createAsyncThunk<
   }
 );
 
+// Async thunk para registro
+export const registerUser = createAsyncThunk<
+  { message: string },
+  RegisterCredentials,
+  { rejectValue: string }
+>(
+  'auth/register',
+  async (credentials, { rejectWithValue }) => {
+    try {
+      const response = await authService.register(credentials);
+      
+      if (!response.data) {
+        return rejectWithValue('Estructura de respuesta inesperada');
+      }
+      
+      return { message: response.data.message };
+    } catch (error: any) {
+      const status = error.response?.status;
+      
+      if (status === 409) {
+        return rejectWithValue('Este correo electrónico ya está registrado');
+      } else if (status === 400) {
+        return rejectWithValue('Datos inválidos. Por favor verifica la información ingresada');
+      } else if (!error.response) {
+        return rejectWithValue('Error de conexión. Por favor verifica tu conexión a internet');
+      }
+      
+      return rejectWithValue(error.response?.data?.message || 'Error al registrar usuario');
+    }
+  }
+);
+
 export const logoutUser = createAsyncThunk(
   'auth/logout',
   async (_, { dispatch }) => {
@@ -60,6 +94,9 @@ const authSlice = createSlice({
     },
     clearError: (state) => {
       state.error = null;
+    },
+    clearRegisterSuccess: (state) => {
+      state.registerSuccess = false;
     },
     setToken: (state, action: PayloadAction<string>) => {
       state.token = action.payload;
@@ -97,6 +134,22 @@ const authSlice = createSlice({
         state.error = action.payload || 'Error desconocido';
         state.isAuthenticated = false;
       })
+      // Register cases
+      .addCase(registerUser.pending, (state) => {
+        state.isRegistering = true;
+        state.error = null;
+        state.registerSuccess = false;
+      })
+      .addCase(registerUser.fulfilled, (state, action) => {
+        state.isRegistering = false;
+        state.registerSuccess = true;
+        state.error = null;
+      })
+      .addCase(registerUser.rejected, (state, action) => {
+        state.isRegistering = false;
+        state.error = action.payload || 'Error desconocido';
+        state.registerSuccess = false;
+      })
       // Logout cases
       .addCase(logoutUser.fulfilled, (state) => {
         state.user = null;
@@ -111,7 +164,7 @@ const authSlice = createSlice({
   },
 });
 
-export const { clearAuth, clearError, setToken, hydrateAuth } = authSlice.actions;
+export const { clearAuth, clearError, clearRegisterSuccess, setToken, hydrateAuth } = authSlice.actions;
 export default authSlice.reducer;
 
 // Selectors

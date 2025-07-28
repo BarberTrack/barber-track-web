@@ -2,6 +2,23 @@ export interface LoginCredentials {
     email: string;
     password: string;
   }
+
+  export interface RegisterCredentials {
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    phone: string;
+  }
+
+  export interface RegisterResponse {
+    success: boolean;
+    data: {
+      message: string;
+    };
+    timestamp: string;
+    service: string;
+  }
   
   export interface User {
     id: string;
@@ -71,6 +88,8 @@ export interface LoginCredentials {
     isLoading: boolean;
     error: string | null;
     isAuthenticated: boolean;
+    isRegistering: boolean;
+    registerSuccess: boolean;
   }
   
   export interface ApiError {

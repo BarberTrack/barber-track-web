@@ -3,18 +3,20 @@ import { useNavigate } from 'react-router';
 import { 
   loginUser, 
   logoutUser, 
+  registerUser,
   clearError, 
+  clearRegisterSuccess,
   hydrateAuth,
   selectAuth 
 } from '../store/authSlice';
 import { authService } from '../services/authService';
-import type { LoginCredentials } from '../../../shared/types/auth.types';
+import type { LoginCredentials, RegisterCredentials } from '../../../shared/types/auth.types';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
 
 export const useAuth = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { user, token, isLoading, error, isAuthenticated } = useAppSelector(selectAuth);
+  const { user, token, isLoading, error, isAuthenticated, isRegistering, registerSuccess } = useAppSelector(selectAuth);
 
   // Hidratar el estado desde localStorage al inicializar
   useEffect(() => {
@@ -44,8 +46,21 @@ export const useAuth = () => {
     navigate('/');
   }, [dispatch, navigate]);
 
+  const register = useCallback(async (credentials: RegisterCredentials) => {
+    try {
+      const result = await dispatch(registerUser(credentials)).unwrap();
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }, [dispatch]);
+
   const clearAuthError = useCallback(() => {
     dispatch(clearError());
+  }, [dispatch]);
+
+  const clearRegisterSuccessState = useCallback(() => {
+    dispatch(clearRegisterSuccess());
   }, [dispatch]);
 
   // Función para obtener el header Authorization
@@ -65,11 +80,15 @@ export const useAuth = () => {
     isLoading,
     error,
     isAuthenticated: checkAuth(),
+    isRegistering,
+    registerSuccess,
     
     // Acciones
     login,
+    register,
     logout,
     clearAuthError,
+    clearRegisterSuccessState,
     
     // Utilidades
     getAuthHeader,
