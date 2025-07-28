@@ -3,7 +3,7 @@ import { Link } from 'react-router';
 import { Button } from '../../../shared/components/shadcn/button';
 import { Plus } from "lucide-react"
 import { useAuth } from '@/features/auth/hooks/useAuth';
-import { ArrowLeft, LogOut, Scissors } from 'lucide-react';
+import { LogOut, Scissors } from 'lucide-react';
 
 
 export const HomePage = () => {
